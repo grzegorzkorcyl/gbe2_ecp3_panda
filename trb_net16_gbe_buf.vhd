@@ -812,7 +812,8 @@ port map(
 
 	  DEBUG_OUT		=> dbg_fr
   );	
-	
+
+imp_gen : if (1) generate	
 	-- MAC part
 	MAC: tsmac35 --tsmac36 --tsmac35
 	port map(
@@ -996,6 +997,6 @@ port map(
 			CTRL_DEBUG			=> x"0000_0000_0000_0000"
 		);
 	end generate serdes_extclk_gen;
-
+end generate imp_gen;
 
 end architecture;
