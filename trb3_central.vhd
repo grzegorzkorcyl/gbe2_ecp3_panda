@@ -399,14 +399,6 @@ SFP_TXDIS <= (others => '0');
 ---------------------------------------------------------------------------
 -- LED
 ---------------------------------------------------------------------------
-  LED_CLOCK_GREEN                <= not med_stat_op(15);
-  LED_CLOCK_RED                  <= not reset_via_gbe;
---   LED_GREEN                      <= not med_stat_op(9);
---   LED_YELLOW                     <= not med_stat_op(10);
---   LED_ORANGE                     <= not med_stat_op(11); 
---   LED_RED                        <= '1';
-  LED_TRIGGER_GREEN              <= not med_stat_op(4*16+9);
-  LED_TRIGGER_RED                <= not (med_stat_op(4*16+11) or med_stat_op(4*16+10));
 
 
 LED_GREEN <= debug(0);
