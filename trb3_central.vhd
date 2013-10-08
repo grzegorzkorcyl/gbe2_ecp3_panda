@@ -283,13 +283,28 @@ architecture trb3_central_arch of trb3_central is
   signal mc_unique_id  : std_logic_vector(63 downto 0);
   signal trb_reset_in  : std_logic;
   signal reset_via_gbe : std_logic;
+  
+  signal reset_ctr : std_logic_vector(31 downto 0);
 
 
 begin
 
 GSR_N   <= pll_lock;
   
-reset_i <= not pll_lock;
+reset_i <= '1' when pll_lock = '0' or reset_ctr(31) = '1';
+
+process(clk_100_i)
+begin
+	if rising_edge(clk_100_i) then
+		if (pll_lock = '0') then
+			reset_ctr <= x"ffff_fffe";
+		elsif (reset_ctr /= x"7eee_eeee") then
+			reset_ctr <= reset_ctr(30 downto 0) & reset_ctr(31);
+		else
+			reset_ctr <= reset_ctr;
+		end if; 
+	end if;
+end process;
 
 ---------------------------------------------------------------------------
 -- Clock Handling
@@ -328,59 +343,10 @@ SFP_TXDIS <= (others => '0');
 	  CLK_125_IN                  => clk_125_i,
 	  RESET                       => reset_i,
 	  GSR_N                       => gsr_n,
-	  --Debug
-	  STAGE_STAT_REGS_OUT         => open, --stage_stat_regs, -- should be come STATUS or similar
-	  STAGE_CTRL_REGS_IN          => stage_ctrl_regs, -- OBSELETE!
-	  ----gk 22.04.10 not used any more, ip_configurator moved inside
-	  ---configuration interface
-	  IP_CFG_START_IN              => stage_ctrl_regs(15),
-	  IP_CFG_BANK_SEL_IN           => stage_ctrl_regs(11 downto 8),
-	  IP_CFG_DONE_OUT              => open,
-	  IP_CFG_MEM_ADDR_OUT          => ip_cfg_mem_addr,
-	  IP_CFG_MEM_DATA_IN           => ip_cfg_mem_data,
-	  IP_CFG_MEM_CLK_OUT           => ip_cfg_mem_clk,
-	  MR_RESET_IN                  => stage_ctrl_regs(3),
-	  MR_MODE_IN                   => stage_ctrl_regs(1),
-	  MR_RESTART_IN                => stage_ctrl_regs(0),
-	  ---gk 29.03.10
-	  --interface to ip_configurator memory
-	  SLV_ADDR_IN                  => mb_ip_mem_addr(7 downto 0),
-	  SLV_READ_IN                  => mb_ip_mem_read,
-	  SLV_WRITE_IN                 => mb_ip_mem_write,
-	  SLV_BUSY_OUT                 => open,
-	  SLV_ACK_OUT                  => mb_ip_mem_ack,
-	  SLV_DATA_IN                  => mb_ip_mem_data_wr,
-	  SLV_DATA_OUT                 => mb_ip_mem_data_rd,
-	  --gk 26.04.10
-	  ---gk 22.04.10
-	  ---registers setup interface
-	  BUS_ADDR_IN                 => gbe_stp_reg_addr(7 downto 0), --ctrl_reg_addr(7 downto 0),
-	  BUS_DATA_IN                 => gbe_stp_reg_data_wr, --stage_ctrl_regs,
-	  BUS_DATA_OUT                => gbe_stp_reg_data_rd,
-	  BUS_WRITE_EN_IN             => gbe_stp_reg_write,
-	  BUS_READ_EN_IN              => gbe_stp_reg_read,
-	  BUS_ACK_OUT                 => gbe_stp_reg_ack,
 	  --gk 23.04.10
 	  LED_PACKET_SENT_OUT         => open, --buf_SFP_LED_ORANGE(17),
 	  LED_AN_DONE_N_OUT           => link_ok, --buf_SFP_LED_GREEN(17),
     --CTS interface
-    CTS_NUMBER_IN               => gbe_cts_number,
-    CTS_CODE_IN                 => gbe_cts_code,
-    CTS_INFORMATION_IN          => gbe_cts_information,
-    CTS_READOUT_TYPE_IN         => gbe_cts_readout_type,
-    CTS_START_READOUT_IN        => gbe_cts_start_readout,
-    CTS_DATA_OUT                => open,
-    CTS_DATAREADY_OUT           => open,
-    CTS_READOUT_FINISHED_OUT    => gbe_cts_readout_finished,
-    CTS_READ_IN                 => '1',
-    CTS_LENGTH_OUT              => open,
-    CTS_ERROR_PATTERN_OUT       => gbe_cts_status_bits,
-    --Data payload interface
-    FEE_DATA_IN                 => gbe_fee_data,
-    FEE_DATAREADY_IN            => gbe_fee_dataready,
-    FEE_READ_OUT                => gbe_fee_read,
-    FEE_STATUS_BITS_IN          => gbe_fee_status_bits,
-    FEE_BUSY_IN                 => gbe_fee_busy,
 	  --SFP   Connection
 	  SFP_RXD_P_IN                => SFP_RX_P(9), --these ports are don't care
 	  SFP_RXD_N_IN                => SFP_RX_N(9),
@@ -393,26 +359,7 @@ SFP_TXDIS <= (others => '0');
 	  SFP_TXDIS_OUT               => SFP_TXDIS(8),  -- SFP disable
 
     -- interface between main_controller and hub logic
-    MC_UNIQUE_ID_IN          => mc_unique_id,
-    GSC_CLK_IN               => clk_100_i,
-    GSC_INIT_DATAREADY_OUT   => gsc_init_dataready,
-    GSC_INIT_DATA_OUT        => gsc_init_data,
-    GSC_INIT_PACKET_NUM_OUT  => gsc_init_packet_num,
-    GSC_INIT_READ_IN         => gsc_init_read,
-    GSC_REPLY_DATAREADY_IN   => gsc_reply_dataready,
-    GSC_REPLY_DATA_IN        => gsc_reply_data,
-    GSC_REPLY_PACKET_NUM_IN  => gsc_reply_packet_num,
-    GSC_REPLY_READ_OUT       => gsc_reply_read,
-    GSC_BUSY_IN              => gsc_busy,
-
-    MAKE_RESET_OUT           => reset_via_gbe,
-
-	  --for simulation of receiving part only
-	  MAC_RX_EOF_IN		=> '0',
-	  MAC_RXD_IN		=> "00000000",
-	  MAC_RX_EN_IN		=> '0',
-
-	  ANALYZER_DEBUG_OUT          => debug
+    MC_UNIQUE_ID_IN          => mc_unique_id
   );
 
   FPGA1_TTL <= (others => 'Z');
