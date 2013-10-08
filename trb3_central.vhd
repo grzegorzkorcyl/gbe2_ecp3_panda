@@ -312,7 +312,7 @@ begin
 
 GSR_N   <= pll_lock;
   
-reset_i <= not pll_lock;
+--reset_i <= not pll_lock;
 
 ---------------------------------------------------------------------------
 -- Clock Handling
@@ -354,7 +354,7 @@ THE_RESET_HANDLER : trb_net_reset_handler
   ---------------------------------------------------------------------
   -- The GbE machine for blasting out data from TRBnet
   ---------------------------------------------------------------------
-SFP_TXDIS <= (others => '0');
+--SFP_TXDIS <= (others => '0');
 
   GBE: trb_net16_gbe_buf
   generic map( 
