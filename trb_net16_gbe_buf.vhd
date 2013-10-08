@@ -813,7 +813,7 @@ port map(
 	  DEBUG_OUT		=> dbg_fr
   );	
 
-imp_gen : if (1) generate	
+imp_gen : if (USE_125MHZ_EXTCLK = 0) generate	
 	-- MAC part
 	MAC: tsmac35 --tsmac36 --tsmac35
 	port map(
