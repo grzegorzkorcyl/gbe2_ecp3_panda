@@ -325,8 +325,8 @@ SFP_TXDIS <= (others => '0');
 
   GBE: trb_net16_gbe_buf
   generic map( 
-	  DO_SIMULATION               => c_NO,
-	  USE_125MHZ_EXTCLK           => c_NO
+	  DO_SIMULATION               => 0,
+	  USE_125MHZ_EXTCLK           => 0
   )
   port map( 
 	  CLK                         => clk_100_i,
