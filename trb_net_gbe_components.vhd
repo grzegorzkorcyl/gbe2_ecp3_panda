@@ -318,46 +318,7 @@ port (
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 		
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
 	MAKE_RESET_OUT           : out std_logic;
-	
-	-- signal for data readout
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	-- ip configurator
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
 	CFG_GBE_ENABLE_IN            : in std_logic;
 	CFG_IPU_ENABLE_IN            : in std_logic;
@@ -445,45 +406,6 @@ port (
 
 -- signals to/from hub
 	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
-	
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
-	-- signal for data readout
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	-- ip configurator
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
 	CFG_GBE_ENABLE_IN            : in std_logic;
 	CFG_IPU_ENABLE_IN            : in std_logic;

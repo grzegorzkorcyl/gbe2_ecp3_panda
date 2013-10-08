@@ -24,56 +24,9 @@ port(
 	CLK_125_IN				: in std_logic;  -- gk 28.04.01 used only in internal 125MHz clock mode
 	RESET						: in	std_logic;
 	GSR_N						: in	std_logic;
-	-- Debug
-	STAGE_STAT_REGS_OUT			: out	std_logic_vector(31 downto 0);
-	STAGE_CTRL_REGS_IN			: in	std_logic_vector(31 downto 0);
-	-- configuration interface
-	IP_CFG_START_IN				: in 	std_logic;
-	IP_CFG_BANK_SEL_IN			: in	std_logic_vector(3 downto 0);
-	IP_CFG_DONE_OUT				: out	std_logic;
-	IP_CFG_MEM_ADDR_OUT			: out	std_logic_vector(7 downto 0);
-	IP_CFG_MEM_DATA_IN			: in	std_logic_vector(31 downto 0);
-	IP_CFG_MEM_CLK_OUT			: out	std_logic;
-	MR_RESET_IN					: in	std_logic;
-	MR_MODE_IN					: in	std_logic;
-	MR_RESTART_IN				: in	std_logic;
-	-- gk 29.03.10
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
-	-- gk 22.04.10
-	-- registers setup interface
-	BUS_ADDR_IN               : in std_logic_vector(7 downto 0);
-	BUS_DATA_IN               : in std_logic_vector(31 downto 0);
-	BUS_DATA_OUT              : out std_logic_vector(31 downto 0);  -- gk 26.04.10
-	BUS_WRITE_EN_IN           : in std_logic;  -- gk 26.04.10
-	BUS_READ_EN_IN            : in std_logic;  -- gk 26.04.10
-	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
 	-- gk 23.04.10
 	LED_PACKET_SENT_OUT          : out std_logic;
 	LED_AN_DONE_N_OUT            : out std_logic;
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
 	--SFP Connection
 	SFP_RXD_P_IN				: in	std_logic;
 	SFP_RXD_N_IN				: in	std_logic;
@@ -86,28 +39,7 @@ port(
 	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
 	
 	-- interface between main_controller and hub logic
-	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0);		
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
-	MAKE_RESET_OUT           : out std_logic;
-
-	-- for simulation of receiving part only
-	MAC_RX_EOF_IN		: in	std_logic;
-	MAC_RXD_IN		: in	std_logic_vector(7 downto 0);
-	MAC_RX_EN_IN		: in	std_logic;
-
-
-	-- debug ports
-	ANALYZER_DEBUG_OUT			: out	std_logic_vector(63 downto 0)
+	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0)
 );
 end entity trb_net16_gbe_buf;
 
@@ -594,9 +526,6 @@ signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
 
 begin
-
-stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
-
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
 LED_AN_DONE_N_OUT   <= '0'; --not link_ok; --not pcs_an_complete;
@@ -653,49 +582,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
   -- signals to/from hub
 	  MC_UNIQUE_ID_IN	=> MC_UNIQUE_ID_IN,
-	GSC_CLK_IN               => GSC_CLK_IN,
-	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
-	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
-	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
-	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
-	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
-	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
-	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
-	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
-	GSC_BUSY_IN              => GSC_BUSY_IN,
-
-	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
-	
-		-- CTS interface
-	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
-	CTS_CODE_IN					=> CTS_CODE_IN,
-	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
-	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
-	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
-	CTS_DATA_OUT				=> CTS_DATA_OUT,
-	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
-	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
-	CTS_READ_IN					=> CTS_READ_IN,
-	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
-	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
-	-- Data payload interface
-	FEE_DATA_IN					=> FEE_DATA_IN,
-	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
-	FEE_READ_OUT				=> FEE_READ_OUT,
-	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
-	FEE_BUSY_IN					=> FEE_BUSY_IN, 
-	-- ip configurator
-	SLV_ADDR_IN                 => SLV_ADDR_IN,
-	SLV_READ_IN                 => SLV_READ_IN,
-	SLV_WRITE_IN                => SLV_WRITE_IN,
-	SLV_BUSY_OUT                => SLV_BUSY_OUT,
-	SLV_ACK_OUT                 => SLV_ACK_OUT,
-	SLV_DATA_IN                 => SLV_DATA_IN,
-	SLV_DATA_OUT                => SLV_DATA_OUT,
-	
-	CFG_GBE_ENABLE_IN           => use_gbe,
-	CFG_IPU_ENABLE_IN           => use_trbnet,
-	CFG_MULT_ENABLE_IN          => use_multievents,
+	  
+	CFG_GBE_ENABLE_IN           => '1',
+	CFG_IPU_ENABLE_IN           => '1',
+	CFG_MULT_ENABLE_IN          => '1',
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -714,8 +604,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
 	  DEBUG_OUT		=> dbg_mc
   );
-  
-  MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
 
 
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
@@ -764,205 +652,6 @@ port map(
 -- debug
 	DEBUG_OUT		=> dbg_tc
 );
-
-
-setup_imp_gen : if (DO_SIMULATION = 0) generate
--- gk 22.04.10 new entity to set values via slow control
-SETUP : gbe_setup
-port map(
-	CLK                       => CLK,
-	RESET                     => RESET,
-
-	-- gk 26.04.10
-	-- interface to regio bus
-	BUS_ADDR_IN               => BUS_ADDR_IN,
-	BUS_DATA_IN               => BUS_DATA_IN,
-	BUS_DATA_OUT              => BUS_DATA_OUT,
-	BUS_WRITE_EN_IN           => BUS_WRITE_EN_IN,
-	BUS_READ_EN_IN            => BUS_READ_EN_IN,
-	BUS_ACK_OUT               => BUS_ACK_OUT,
-
-	GBE_TRIG_NR_IN            => pc_trig_nr, -- gk 26.04.10
-
-	-- output to gbe_buf
-	GBE_SUBEVENT_ID_OUT       => pc_event_id,
-	GBE_SUBEVENT_DEC_OUT      => pc_decoding,
-	GBE_QUEUE_DEC_OUT         => pc_queue_dec,
-	GBE_MAX_PACKET_OUT        => max_packet,
-	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
-	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
-	GBE_USE_GBE_OUT           => use_gbe,
-	GBE_USE_TRBNET_OUT        => use_trbnet,
-	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
-	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
-	GBE_READOUT_CTR_VALID_OUT => readout_ctr_valid,  -- gk 26.04.10
-	GBE_DELAY_OUT             => pc_delay,
-	GBE_ALLOW_LARGE_OUT       => allow_large,  -- gk 21.07.10
-	GBE_ALLOW_RX_OUT          => allow_rx,
-	GBE_ALLOW_BRDCST_ETH_OUT  => open,
-	GBE_ALLOW_BRDCST_IP_OUT   => open,
-	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
-	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
-	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
-	GBE_ALLOWED_UDP_OUT	  => fr_allowed_udp,
-	GBE_VLAN_ID_OUT	          => vlan_id,
-	-- gk 28.07.10
-	MONITOR_BYTES_IN          => bytes_sent_ctr,
-	MONITOR_SENT_IN           => monitor_sent,
-	MONITOR_DROPPED_IN        => monitor_dropped,
-	MONITOR_SM_IN             => monitor_sm,
-	MONITOR_LR_IN             => monitor_lr,
-	MONITOR_HDR_IN            => monitor_hr,
-	MONITOR_FIFOS_IN          => monitor_fifos_q,
-	MONITOR_DISCFRM_IN        => monitor_discfrm,
-	MONITOR_EMPTY_IN          => monitor_empty,
-	MONITOR_LINK_DWN_IN(15 downto 0)  => link_down_ctr,  -- gk 30.09.10
-	MONITOR_LINK_DWN_IN(19 downto 16) => link_state,
-	MONITOR_LINK_DWN_IN(23 downto 20) => ft_bsm_trans,
-	MONITOR_LINK_DWN_IN(27 downto 24) => fc_bsm_trans,
-	MONITOR_LINK_DWN_IN(31 downto 28) => (others => '0'),
-	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
-	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
-	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
-	-- gk 01.06.10
-	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
-	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
-	DBG_IPU2GBE3_IN           => dbg_ipu2gbe3,
-	DBG_IPU2GBE4_IN           => dbg_ipu2gbe4,
-	DBG_IPU2GBE5_IN           => dbg_ipu2gbe5,
-	DBG_IPU2GBE6_IN           => dbg_ipu2gbe6,
-	DBG_IPU2GBE7_IN           => dbg_ipu2gbe7,
-	DBG_IPU2GBE8_IN           => dbg_ipu2gbe8,
-	DBG_IPU2GBE9_IN           => dbg_ipu2gbe9,
-	DBG_IPU2GBE10_IN          => dbg_ipu2gbe10,
-	DBG_IPU2GBE11_IN          => dbg_ipu2gbe11,
-	DBG_IPU2GBE12_IN          => dbg_ipu2gbe12,
-	DBG_PC1_IN                => dbg_pc1,
-	DBG_PC2_IN                => dbg_pc2,
-	DBG_FC1_IN                => dbg_fc1,
-	DBG_FC2_IN                => dbg_fc2,
-	DBG_FT1_IN                => dbg_ft1,
-	DBG_FT2_IN                => dbg_ft(31 downto 0),
-	DBG_FR_IN                 => dbg_fr(63 downto 0),
-	DBG_RC_IN                 => dbg_rc,
-	DBG_MC_IN                 => dbg_mc,
-	DBG_TC_IN                 => dbg_tc(31 downto 0),
-	DBG_FIFO_RD_EN_OUT        => dbg_rd_en,
-	
-	DBG_SELECT_REC_IN	=> dbg_select_rec,
-	DBG_SELECT_SENT_IN	=> dbg_select_sent,
-	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
-	
-	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
-	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
-	
-	DBG_FIFO_Q_IN             => dbg_q
-	
-	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
-);
-end generate;
-
-setup_sim_gen : if (DO_SIMULATION = 1) generate
--- gk 22.04.10 new entity to set values via slow control
-SETUP : gbe_setup
-port map(
-	CLK                       => CLK,
-	RESET                     => RESET,
-
-	-- gk 26.04.10
-	-- interface to regio bus
-	BUS_ADDR_IN               => BUS_ADDR_IN,
-	BUS_DATA_IN               => BUS_DATA_IN,
-	BUS_DATA_OUT              => BUS_DATA_OUT,
-	BUS_WRITE_EN_IN           => BUS_WRITE_EN_IN,
-	BUS_READ_EN_IN            => BUS_READ_EN_IN,
-	BUS_ACK_OUT               => BUS_ACK_OUT,
-
-	GBE_TRIG_NR_IN            => pc_trig_nr, -- gk 26.04.10
-
-	-- output to gbe_buf
-	GBE_SUBEVENT_ID_OUT       => pc_event_id,
-	GBE_SUBEVENT_DEC_OUT      => pc_decoding,
-	GBE_QUEUE_DEC_OUT         => pc_queue_dec,
-	GBE_MAX_PACKET_OUT        => max_packet,
-	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
-	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
-	GBE_USE_GBE_OUT           => open, --use_gbe,
-	GBE_USE_TRBNET_OUT        => use_trbnet,
-	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
-	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
-	GBE_READOUT_CTR_VALID_OUT => readout_ctr_valid,  -- gk 26.04.10
-	GBE_DELAY_OUT             => pc_delay,
-	GBE_ALLOW_LARGE_OUT       => open,
-	GBE_ALLOW_RX_OUT          => open,
-	GBE_ALLOW_BRDCST_ETH_OUT  => open,
-	GBE_ALLOW_BRDCST_IP_OUT   => open,
-	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
-	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
-	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
-	GBE_ALLOWED_UDP_OUT	  => fr_allowed_udp,
-	GBE_VLAN_ID_OUT	          => vlan_id,
-	-- gk 28.07.10
-	MONITOR_BYTES_IN          => bytes_sent_ctr,
-	MONITOR_SENT_IN           => monitor_sent,
-	MONITOR_DROPPED_IN        => monitor_dropped,
-	MONITOR_SM_IN             => monitor_sm,
-	MONITOR_LR_IN             => monitor_lr,
-	MONITOR_HDR_IN            => monitor_hr,
-	MONITOR_FIFOS_IN          => monitor_fifos_q,
-	MONITOR_DISCFRM_IN        => monitor_discfrm,
-	MONITOR_EMPTY_IN          => monitor_empty,
-	MONITOR_LINK_DWN_IN(15 downto 0)  => link_down_ctr,  -- gk 30.09.10
-	MONITOR_LINK_DWN_IN(19 downto 16) => link_state,
-	MONITOR_LINK_DWN_IN(23 downto 20) => ft_bsm_trans,
-	MONITOR_LINK_DWN_IN(27 downto 24) => fc_bsm_trans,
-	MONITOR_LINK_DWN_IN(31 downto 28) => (others => '0'),
-	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
-	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
-	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
-	
-	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
-	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
-	
-	-- gk 01.06.10
-	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
-	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
-	DBG_IPU2GBE3_IN           => dbg_ipu2gbe3,
-	DBG_IPU2GBE4_IN           => dbg_ipu2gbe4,
-	DBG_IPU2GBE5_IN           => dbg_ipu2gbe5,
-	DBG_IPU2GBE6_IN           => dbg_ipu2gbe6,
-	DBG_IPU2GBE7_IN           => dbg_ipu2gbe7,
-	DBG_IPU2GBE8_IN           => dbg_ipu2gbe8,
-	DBG_IPU2GBE9_IN           => dbg_ipu2gbe9,
-	DBG_IPU2GBE10_IN          => dbg_ipu2gbe10,
-	DBG_IPU2GBE11_IN          => dbg_ipu2gbe11,
-	DBG_IPU2GBE12_IN          => dbg_ipu2gbe12,
-	DBG_PC1_IN                => dbg_pc1,
-	DBG_PC2_IN                => dbg_pc2,
-	DBG_FC1_IN                => dbg_fc1,
-	DBG_FC2_IN                => dbg_fc2,
-	DBG_FT1_IN                => dbg_ft1,
-	DBG_FT2_IN                => dbg_ft(31 downto 0),
-	DBG_FR_IN                 => dbg_fr(63 downto 0),
-	DBG_RC_IN                 => dbg_rc,
-	DBG_MC_IN                 => dbg_mc,
-	DBG_TC_IN                 => dbg_tc(31 downto 0),
-	DBG_FIFO_RD_EN_OUT        => dbg_rd_en,
-		
-	DBG_SELECT_REC_IN	=> dbg_select_rec,
-	DBG_SELECT_SENT_IN	=> dbg_select_sent,
-	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
-	
-	DBG_FIFO_Q_IN             => dbg_q
-	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
-);
-
-use_gbe <= '1';
-
-allow_rx <= '1';
-allow_large <= '0';
-
-end generate;
 
 -- Third stage: Frame Constructor
 FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
@@ -1123,40 +812,7 @@ port map(
 	FR_DEST_UDP_PORT_OUT	=> fr_dest_udp,
 
 	  DEBUG_OUT		=> dbg_fr
-  );
-
-
--- in case of real hardware, we use the IP cores for MAC and PHY, and also put a SerDes in
-imp_gen: if (DO_SIMULATION = 0) generate
-	--------------------------------------------------------------------------------------------
-	--------------------------------------------------------------------------------------------
-	-- Implementation
-	--------------------------------------------------------------------------------------------
-	--------------------------------------------------------------------------------------------
-	
-	
-	TIMEOUT_CTR_PROC : process(CLK)
-	begin
-		if rising_edge(CLK) then
-			if (RESET = '1' or mac_tx_done = '1') then
-				timeout_ctr <= (others => '0');
-			else
-				timeout_ctr <= timeout_ctr + x"1";
-			end if;
-		end if;
-	end process TIMEOUT_CTR_PROC;
-	
-	TIMEOUT_NOTICED_PROC : process(CLK)
-	begin
-		if rising_edge(CLK) then
-			if (RESET = '1') then
-				timeout_noticed <= '0';
-			elsif (timeout_ctr(30) = '1') then
-				timeout_noticed <= '1';
-			end if;	
-		end if;
-	end process TIMEOUT_NOTICED_PROC;
-	
+  );	
 	
 	-- MAC part
 	MAC: tsmac35 --tsmac36 --tsmac35
@@ -1345,10 +1001,10 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			MR_AN_LP_ABILITY_OUT		=> pcs_an_lp_ability,
 			MR_AN_PAGE_RX_OUT		=> pcs_an_page_rx,
 			MR_AN_COMPLETE_OUT		=> pcs_an_complete,
-			MR_RESET_IN			=> MR_RESET_IN,
-			MR_MODE_IN			=> MR_MODE_IN,
+			MR_RESET_IN			=> RESET,
+			MR_MODE_IN			=> '0',
 			MR_AN_ENABLE_IN			=> '1', -- do autonegotiation
-			MR_RESTART_AN_IN		=> MR_RESTART_IN,
+			MR_RESTART_AN_IN		=> '0',
 			-- Status and control port
 			STAT_OP				=> open,
 			CTRL_OP				=> x"0000",
@@ -1356,199 +1012,6 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			CTRL_DEBUG			=> x"0000_0000_0000_0000"
 		);
 	end generate serdes_extclk_gen;
-
-	stage_stat_regs(31 downto 28) <= x"e";
-	stage_stat_regs(27 downto 24) <= pcs_stat_debug(25 downto 22); -- link s-tatus 
-	stage_stat_regs(23 downto 20) <= pcs_stat_debug(35 downto 32); -- reset bsm
-	stage_stat_regs(19)           <= '0';
-	stage_stat_regs(18)           <= link_ok;  -- gk 30.09.10
-	stage_stat_regs(17)           <= pcs_an_complete;
-	stage_stat_regs(16)           <= pcs_an_page_rx;
-	stage_stat_regs(15 downto 0)  <= pcs_an_lp_ability;
-
-end generate imp_gen;
-
--- in case of simulation we include a fake MAC and no PHY/SerDes.
-sim_gen: if (DO_SIMULATION = 1) generate
-	--------------------------------------------------------------------------------------------
-	--------------------------------------------------------------------------------------------
-	-- Simulation
-	--------------------------------------------------------------------------------------------
-	--------------------------------------------------------------------------------------------
-	MAC: mb_mac_sim
-	port map( --------------------------------------------------------------------------
-			  --------------- clock, reset, clock enable -------------------------------
-			  HCLK					=> CLK,
-			  TX_MAC_CLK			=> serdes_clk_125,
-			  RX_MAC_CLK			=> serdes_rx_clk, --serdes_clk_125,
-			  RESET_N				=> GSR_N,
-			  TXMAC_CLK_EN			=> mac_tx_clk_en,
-			  RXMAC_CLK_EN			=> mac_rx_clk_en,
-			  --------------------------------------------------------------------------
-			  --------------- SGMII receive interface ----------------------------------
-			  RXD					=> x"00",
-			  RX_DV					=> '0',
-			  RX_ER					=> '0',
-			  COL					=> mac_col,
-			  CRS					=> mac_crs,
-			  --------------------------------------------------------------------------
-			  --------------- SGMII transmit interface ---------------------------------
-			  TXD					=> pcs_txd,
-			  TX_EN					=> pcs_tx_en,
-			  TX_ER					=> pcs_tx_er,
-			  --------------------------------------------------------------------------
-			  --------------- CPU configuration interface ------------------------------
-			  HADDR					=> mac_haddr,
-			  HDATAIN				=> mac_hdataout,
-			  HCS_N					=> mac_hcs,
-			  HWRITE_N				=> mac_hwrite,
-			  HREAD_N				=> mac_hread,
-			  HDATAOUT				=> open,
-			  HDATAOUT_EN_N			=> mac_hdata_en,
-			  HREADY_N				=> mac_hready,
-			  CPU_IF_GBIT_EN		=> open,
-			  --------------------------------------------------------------------------
-			  --------------- Transmit FIFO interface ----------------------------------
-			  TX_FIFODATA			=> ft_data(7 downto 0),
-			  TX_FIFOAVAIL			=> mac_fifoavail,
-			  TX_FIFOEOF			=> mac_fifoeof,
-			  TX_FIFOEMPTY			=> mac_fifoempty,
-			  TX_MACREAD			=> mac_tx_read,
-			  TX_DONE				=> mac_tx_done,
-			  TX_SNDPAUSTIM			=> x"0000",
-			  TX_SNDPAUSREQ			=> '0',
-			  TX_FIFOCTRL			=> '0',
-			  TX_DISCFRM			=> open,
-			  TX_STATEN				=> open,
-			  TX_STATVEC			=> open,
-			  --------------------------------------------------------------------------
-			  --------------- Receive FIFO interface -----------------------------------
-			  RX_DBOUT				=> open,
-			  RX_FIFO_FULL			=> '0',
-			  IGNORE_PKT			=> '0',	
-			  RX_FIFO_ERROR			=> open,
-			  RX_STAT_VECTOR		=> open,
-			  RX_STAT_EN			=> open,
-			  RX_WRITE				=> open,
-			  RX_EOF				=> open,
-			  RX_ERROR				=> open
-			);
-
-	-- add external test clock for the MAC part
-	serdes_clk_125 <= TEST_CLK;
-
-	-- fake signals
-	pcs_an_lp_ability <= x"4060";
-	pcs_an_page_rx    <= '0';
-	pcs_an_complete   <= '1';
-	mac_tx_clk_en     <= '1';
-	mac_rx_clk_en     <= '1';
-	
-	stage_stat_regs(31 downto 0)  <= (others => '0');
-
-	pcs_stat_debug(63 downto 0)   <= (others => '0');
-
-	SFP_TXD_P_OUT                 <= '1';
-	SFP_TXD_N_OUT                 <= '0';
-	SFP_TXDIS_OUT                 <= '0';
-	
-
-end generate sim_gen;
-
-
---***********************
---	MONITORING & DEBUG
---***********************
-
-
--- gk 04.08.10
-MON_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		monitor_fifos_q(3 downto 0)           <= monitor_fifos(3 downto 0);
-		if (dbg_pc1(28) = '1') then
-			monitor_fifos_q(5 downto 4)   <= b"11";
-		else 
-			monitor_fifos_q(5 downto 4)   <= b"00";
-		end if;
-		if (dbg_pc1(30) = '1') then
-			monitor_fifos_q(7 downto 6)   <= b"11";
-		else 
-			monitor_fifos_q(7 downto 6)   <= b"00";
-		end if;
-		if (dbg_fc1(28) = '1') then
-			monitor_fifos_q(11 downto 8)  <= b"1111";
-		else
-			monitor_fifos_q(11 downto 8)  <= b"0000";
-		end if;
-		if (pcs_an_complete = '0') then
-			monitor_fifos_q(15 downto 12) <= b"1111";
-		else
-			monitor_fifos_q(15 downto 12) <= b"0000";
-		end if;
-	end if;
-end process MON_PROC;
-
--- gk 28.07.10
-BYTES_SENT_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			bytes_sent_ctr <= (others => '0');
-		elsif (fc_wr_en = '1') then
-			bytes_sent_ctr <= bytes_sent_ctr + x"1";
-		end if;
-	end if;
-end process BYTES_SENT_CTR_PROC;
-
--- gk 02.08.10
-DISCFRM_PROC : process(serdes_clk_125)
-begin
-	if rising_edge(serdes_clk_125) then
-		if (RESET = '1') then
-			discfrm_ctr <= (others => '0');
-		elsif (mac_tx_discfrm = '1') then
-			discfrm_ctr <= discfrm_ctr + x"1";
-		end if;
-	end if;
-end process DISCFRM_PROC;
-
-discfrm_sync : signal_sync
-	generic map(
-	  DEPTH => 2,
-	  WIDTH => 32
-	  )
-	port map(
-	  RESET    => RESET,
-	  D_IN     => discfrm_ctr,
-	  CLK0     => serdes_clk_125,
-	  CLK1     => CLK,
-	  D_OUT    => monitor_discfrm
-	  );
-
-
-------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------
-
---***************
---	LOGIC ANALYZER SIGNALS
---***************
---ANALYZER_DEBUG_OUT <= dbg_mc or dbg_tc or (dbg_fc1 & dbg_fc2) or rc_debug or dbg_ft or dbg_fr(63 downto 0) or (dbg_fr(95 downto 64) & x"00000000");
---ANALYZER_DEBUG_OUT(3 downto 0) <= dbg_select_protos(99 downto 96);
---ANALYZER_DEBUG_OUT(63 downto 4) <= (others => '0');
-
--- Outputs
---FEE_READ_OUT             <= fee_read;
-
-CTS_READOUT_FINISHED_OUT <= cts_readout_finished;
-CTS_DATAREADY_OUT        <= cts_dataready;
-CTS_DATA_OUT             <= cts_data;
-CTS_LENGTH_OUT           <= cts_length;
-CTS_ERROR_PATTERN_OUT    <= cts_error_pattern;
-
-STAGE_STAT_REGS_OUT      <= stage_stat_regs;
 
 
 end architecture;
