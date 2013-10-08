@@ -142,11 +142,6 @@ signal wait_ctr                     : std_logic_vector(31 downto 0);
 
 signal rc_data_local                : std_logic_vector(8 downto 0);
 
--- debug
-signal frame_waiting_ctr            : std_logic_vector(15 downto 0);
-signal ps_busy_q                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-signal rc_frame_proto_q             : std_Logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-
 type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, WAIT_ONE, FINISH, CLEANUP);
 signal redirect_current_state, redirect_next_state : redirect_states;
 attribute syn_encoding of redirect_current_state : signal is "onehot";
