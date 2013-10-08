@@ -294,20 +294,8 @@ begin
 
 GSR_N   <= pll_lock;
   
-reset_i <= '1' when pll_lock = '0' or reset_ctr(31) = '1';
-
-process(clk_100_i)
-begin
-	if rising_edge(clk_100_i) then
-		if (pll_lock = '0') then
-			reset_ctr <= x"ffff_fffe";
-		elsif (reset_ctr /= x"7eee_eeee") then
-			reset_ctr <= reset_ctr(30 downto 0) & reset_ctr(31);
-		else
-			reset_ctr <= reset_ctr;
-		end if; 
-	end if;
-end process;
+--reset_i <= not pll_lock;
+reset_i <= '0';
 
 ---------------------------------------------------------------------------
 -- Clock Handling

@@ -648,7 +648,6 @@ port map(
 	SRC_IP_ADDRESS_OUT      => fc_src_ip,
 	SRC_UDP_PORT_OUT        => fc_src_udp,
 
-
 -- debug
 	DEBUG_OUT		=> dbg_tc
 );
@@ -882,8 +881,6 @@ port map(
 			pcs_rxd_qq   <= pcs_rxd_q;
 			pcs_rx_en_qq <= pcs_rx_en_q;
 			pcs_rx_er_qq <= pcs_rx_er_q;
-			--mac_col_q   <= mac_col;
-			--mac_crs_q   <= mac_crs;
 		end if;
 	end process SYNC_GMII_RX_PROC;
 	
@@ -899,19 +896,6 @@ port map(
 			pcs_tx_er_qq <= pcs_tx_er_q; 
 		end if;
 	end process SYNC_GMII_TX_PROC;
-
-	-- gk 08.06.10
-	dbg_statevec_proc : process(serdes_clk_125)
-	begin
-		if rising_edge(serdes_clk_125) then
-			if (RESET = '1') then
-				dbg_ft1              <= (others => '0');
-			elsif (mac_tx_staten = '1') then
-				dbg_ft1(30 downto 0) <= mac_tx_statevec;
-				dbg_ft1(31)          <= mac_tx_discfrm;
-			end if;
-		end if;
-	end process dbg_statevec_proc;
 
 	serdes_intclk_gen: if (USE_125MHZ_EXTCLK = 0) generate
 		-- PHY part
