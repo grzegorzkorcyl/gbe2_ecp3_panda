@@ -177,28 +177,31 @@ architecture trb3_central_arch of trb3_central is
   attribute syn_keep of GSR_N : signal is true;
   attribute syn_preserve of GSR_N : signal is true;
 
-  
+component pll_in200_out100 is
+port (
+	clk : in std_logic;
+	reset : in std_logic;
+	clkop : out std_logic;
+	clkok : out std_logic;
+	lock : out std_logic
+);
+end component;
+
+component pll_in125_out20 is
+port (
+	clk : in std_logic;
+	clkop : out std_logic;
+	clkok : out std_logic;
+	lock : out std_logic
+);
+end component;
 
   --FPGA Test
   signal time_counter, time_counter2 : unsigned(31 downto 0);
 
   --Media Interface
-  signal med_stat_op             : std_logic_vector (INTERFACE_NUM*16-1  downto 0);
-  signal med_ctrl_op             : std_logic_vector (INTERFACE_NUM*16-1  downto 0);
-  signal med_stat_debug          : std_logic_vector (INTERFACE_NUM*64-1  downto 0);
-  signal med_ctrl_debug          : std_logic_vector (INTERFACE_NUM*64-1  downto 0);
-  signal med_data_out            : std_logic_vector (INTERFACE_NUM*16-1  downto 0);
-  signal med_packet_num_out      : std_logic_vector (INTERFACE_NUM*3-1   downto 0);
-  signal med_dataready_out       : std_logic_vector (INTERFACE_NUM*1-1   downto 0);
-  signal med_read_out            : std_logic_vector (INTERFACE_NUM*1-1   downto 0);
-  signal med_data_in             : std_logic_vector (INTERFACE_NUM*16-1  downto 0);
-  signal med_packet_num_in       : std_logic_vector (INTERFACE_NUM*3-1   downto 0);
-  signal med_dataready_in        : std_logic_vector (INTERFACE_NUM*1-1   downto 0);
-  signal med_read_in             : std_logic_vector (INTERFACE_NUM*1-1   downto 0);
 
   --Hub
-  signal common_stat_regs        : std_logic_vector (std_COMSTATREG*32-1 downto 0);
-  signal common_ctrl_regs        : std_logic_vector (std_COMCTRLREG*32-1 downto 0);
   signal my_address              : std_logic_vector (16-1 downto 0);
   signal regio_addr_out          : std_logic_vector (16-1 downto 0);
   signal regio_read_enable_out   : std_logic;
