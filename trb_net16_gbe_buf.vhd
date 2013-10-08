@@ -109,150 +109,6 @@ port(
 );
 end component; 
 
-component mb_mac_sim is
-port (
-	--------------------------------------------------------------------------
-	--------------- clock, reset, clock enable -------------------------------
-	HCLK				: in	std_logic;
-	TX_MAC_CLK			: in	std_logic;
-	RX_MAC_CLK			: in	std_logic;
-	RESET_N				: in	std_logic;
-	TXMAC_CLK_EN		: in	std_logic;
-	RXMAC_CLK_EN		: in	std_logic;
-	--------------------------------------------------------------------------
-	--------------- SGMII receive interface ----------------------------------
-	RXD					: in	std_logic_vector(7 downto 0);
-	RX_DV				: in	std_logic;
-	RX_ER				: in	std_logic;
-	COL					: in	std_logic;
-	CRS					: in	std_logic;
-	--------------------------------------------------------------------------
-	--------------- SGMII transmit interface ---------------------------------
-	TXD					: out	std_logic_vector(7 downto 0);
-	TX_EN				: out	std_logic;
-	TX_ER				: out	std_logic;
-	--------------------------------------------------------------------------
-	--------------- CPU configuration interface ------------------------------
-	HADDR				: in	std_logic_vector(7 downto 0);
-	HDATAIN				: in	std_logic_vector(7 downto 0);
-	HCS_N				: in	std_logic;
-	HWRITE_N			: in	std_logic;
-	HREAD_N				: in	std_logic;
-	HDATAOUT			: out	std_logic_vector(7 downto 0);
-	HDATAOUT_EN_N		: out	std_logic;
-	HREADY_N			: out	std_logic;
-	CPU_IF_GBIT_EN		: out	std_logic;
-	--------------------------------------------------------------------------
-	--------------- Transmit FIFO interface ----------------------------------
-	TX_FIFODATA			: in	std_logic_vector(7 downto 0);
-	TX_FIFOAVAIL		: in	std_logic;
-	TX_FIFOEOF			: in	std_logic;
-	TX_FIFOEMPTY		: in	std_logic;
-	TX_MACREAD			: out	std_logic;
-	TX_DONE				: out	std_logic;
-	TX_SNDPAUSTIM		: in	std_logic_vector(15 downto 0);
-	TX_SNDPAUSREQ		: in	std_logic;
-	TX_FIFOCTRL			: in	std_logic;
-	TX_DISCFRM			: out	std_logic;
-	TX_STATEN			: out	std_logic;
-	TX_STATVEC			: out	std_logic_vector(30 downto 0);
-	--------------------------------------------------------------------------
-	--------------- Receive FIFO interface -----------------------------------
-	RX_DBOUT			: out	std_logic_vector(7 downto 0);
-	RX_FIFO_FULL		: in	std_logic;
-	IGNORE_PKT			: in	std_logic;	
-	RX_FIFO_ERROR		: out	std_logic;
-	RX_STAT_VECTOR		: out	std_logic_vector(31 downto 0);
-	RX_STAT_EN			: out	std_logic;
-	RX_WRITE			: out	std_logic;
-	RX_EOF				: out	std_logic;
-	RX_ERROR			: out	std_logic
-);
-end component;
-
-component fifo_4096x9 is
-port( 
-	Data    : in    std_logic_vector(8 downto 0);
-	WrClock : in    std_logic;
-	RdClock : in    std_logic;
-	WrEn    : in    std_logic;
-	RdEn    : in    std_logic;
-	Reset   : in    std_logic;
-	RPReset : in    std_logic;
-	Q       : out   std_logic_vector(8 downto 0);
-	Empty   : out   std_logic;
-	Full    : out   std_logic
-);
-end component;
-
-signal ig_bsm_save				: std_logic_vector(3 downto 0);
-signal ig_bsm_load				: std_logic_vector(3 downto 0);
-signal ig_cts_ctr				: std_logic_vector(2 downto 0);
-signal ig_rem_ctr				: std_logic_vector(3 downto 0);
-signal ig_debug					: std_logic_vector(31 downto 0);
-signal ig_data					: std_logic_vector(15 downto 0);
-signal ig_wcnt					: std_logic_vector(15 downto 0);
-signal ig_rcnt					: std_logic_vector(16 downto 0);
-signal ig_rd_en					: std_logic;
-signal ig_wr_en					: std_logic;
-signal ig_empty					: std_logic;
-signal ig_aempty				: std_logic;
-signal ig_full					: std_logic;
-signal ig_afull					: std_logic;
-
-signal pc_wr_en					: std_logic;
-signal pc_data					: std_logic_vector(7 downto 0);
-signal pc_eod					: std_logic;
-signal pc_sos					: std_logic;
-signal pc_ready					: std_logic;
-signal pc_padding				: std_logic;
-signal pc_decoding				: std_logic_vector(31 downto 0);
-signal pc_event_id				: std_logic_vector(31 downto 0);
-signal pc_queue_dec				: std_logic_vector(31 downto 0);
-signal pc_max_frame_size        : std_logic_vector(15 downto 0);
-signal pc_bsm_constr			: std_logic_vector(3 downto 0);
-signal pc_bsm_load				: std_logic_vector(3 downto 0);
-signal pc_bsm_save				: std_logic_vector(3 downto 0);
-signal pc_shf_empty				: std_logic;
-signal pc_shf_full				: std_logic;
-signal pc_shf_wr_en				: std_logic;
-signal pc_shf_rd_en				: std_logic;
-signal pc_shf_q					: std_logic_vector(7 downto 0);
-signal pc_df_empty				: std_logic;
-signal pc_df_full				: std_logic;
-signal pc_df_wr_en				: std_logic;
-signal pc_df_rd_en				: std_logic;
-signal pc_df_q					: std_logic_vector(7 downto 0);
-signal pc_all_ctr				: std_logic_vector(4 downto 0);
-signal pc_sub_ctr				: std_logic_vector(4 downto 0);
-signal pc_bytes_loaded			: std_logic_vector(15 downto 0);
-signal pc_size_left				: std_logic_vector(31 downto 0);
-signal pc_sub_size_to_save		: std_logic_vector(31 downto 0);
-signal pc_sub_size_loaded		: std_logic_vector(31 downto 0);
-signal pc_sub_bytes_loaded		: std_logic_vector(31 downto 0);
-signal pc_queue_size			: std_logic_vector(31 downto 0);
-signal pc_act_queue_size		: std_logic_vector(31 downto 0);
-
-signal fee_read					: std_logic;
-signal cts_readout_finished		: std_logic;
-signal cts_dataready			: std_logic;
-signal cts_length				: std_logic_vector(15 downto 0);
-signal cts_data					: std_logic_vector(31 downto 0); -- DHDR of rest packet
-signal cts_error_pattern		: std_logic_vector(31 downto 0);
-
-signal pc_sub_size				: std_logic_vector(31 downto 0);
-signal pc_trig_nr				: std_logic_vector(31 downto 0);
-
-signal tc_wr_en					: std_logic;
-signal tc_data					: std_logic_vector(7 downto 0);
-signal tc_ip_size				: std_logic_vector(15 downto 0);
-signal tc_udp_size				: std_logic_vector(15 downto 0);
-signal tc_ident					: std_logic_vector(15 downto 0);
-signal tc_flags_offset				: std_logic_vector(15 downto 0);
-signal tc_sod					: std_logic;
-signal tc_eod					: std_logic;
-signal tc_h_ready				: std_logic;
-signal tc_ready					: std_logic;
 signal fc_dest_mac				: std_logic_vector(47 downto 0);
 signal fc_dest_ip				: std_logic_vector(31 downto 0);
 signal fc_dest_udp				: std_logic_vector(15 downto 0);
@@ -301,96 +157,16 @@ signal pcs_an_page_rx			: std_logic;
 
 signal pcs_stat_debug			: std_logic_vector(63 downto 0); 
 
-signal stage_stat_regs			: std_logic_vector(31 downto 0);
-signal stage_ctrl_regs			: std_logic_vector(31 downto 0);
-
-signal analyzer_debug			: std_logic_vector(63 downto 0);
-
-signal ip_cfg_start			: std_logic;
-signal ip_cfg_bank			: std_logic_vector(3 downto 0);
-signal ip_cfg_done			: std_logic;
-
-signal ip_cfg_mem_addr			: std_logic_vector(7 downto 0);
-signal ip_cfg_mem_data			: std_logic_vector(31 downto 0);
-signal ip_cfg_mem_clk			: std_logic;
-
--- gk 22.04.10
-signal max_packet                    : std_logic_vector(31 downto 0);
-signal min_packet                    : std_logic_vector(31 downto 0);
-signal use_gbe                       : std_logic;
-signal use_trbnet                    : std_logic;
-signal use_multievents               : std_logic;
--- gk 26.04.10
-signal readout_ctr                   : std_logic_vector(23 downto 0);
-signal readout_ctr_valid             : std_logic;
-signal gbe_trig_nr                   : std_logic_vector(31 downto 0);
--- gk 28.04.10
-signal pc_delay                      : std_logic_vector(31 downto 0);
--- gk 04.05.10
-signal ft_eod                        : std_logic;
--- gk 01.06.10
-signal dbg_ipu2gbe1                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe2                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe3                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe4                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe5                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe6                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe7                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe8                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe9                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe10                 : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe11                 : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe12                 : std_logic_vector(31 downto 0);
-signal dbg_pc1                       : std_logic_vector(31 downto 0);
-signal dbg_pc2                       : std_logic_vector(31 downto 0);
 signal dbg_fc1                       : std_logic_vector(31 downto 0);
 signal dbg_fc2                       : std_logic_vector(31 downto 0);
-signal dbg_ft1                       : std_logic_vector(31 downto 0);
 -- gk 08.06.10
 signal mac_tx_staten                 : std_logic;
 signal mac_tx_statevec               : std_logic_vector(30 downto 0);
 signal mac_tx_discfrm                : std_logic;
 
-signal dbg_rd_en                     : std_logic;
 signal dbg_q                         : std_logic_vector(15 downto 0);
 
--- gk 21.07.10
-signal allow_large                   : std_logic;
-
--- gk 28.07.10
-signal bytes_sent_ctr                : std_logic_vector(31 downto 0);
-signal monitor_sent                  : std_logic_vector(31 downto 0);
-signal monitor_dropped               : std_logic_vector(31 downto 0);
-signal monitor_sm                    : std_logic_vector(31 downto 0);
-signal monitor_lr                    : std_logic_vector(31 downto 0);
-signal monitor_hr                    : std_logic_vector(31 downto 0);
-signal monitor_fifos                 : std_logic_vector(31 downto 0);
-signal monitor_fifos_q               : std_logic_vector(31 downto 0);
-signal monitor_discfrm               : std_logic_vector(31 downto 0);
-
--- gk 02.08.10
-signal discfrm_ctr                   : std_logic_vector(31 downto 0);
-
--- gk 28.09.10
-signal dbg_reset_fifo                : std_logic;
-
--- gk 30.09.10
-signal fc_rd_en                      : std_logic;
 signal link_ok                       : std_logic;
-signal link_ok_timeout_ctr           : std_logic_vector(15 downto 0);
-
-type linkStates     is  (ACTIVE, INACTIVE, TIMEOUT, FINALIZE);
-signal link_current_state, link_next_state : linkStates;
-
-signal link_down_ctr                 : std_logic_vector(15 downto 0);
-signal link_down_ctr_lock            : std_logic;
-
-signal link_state                    : std_logic_vector(3 downto 0);
-
-signal monitor_empty                 : std_logic_vector(31 downto 0);
-
--- gk 07.10.10
-signal pc_eos                        : std_logic;
 
 -- gk 09.12.10
 signal frame_delay                   : std_logic_vector(31 downto 0);
@@ -413,9 +189,6 @@ signal fr_frame_valid                : std_logic;
 signal rc_rd_en                      : std_logic;
 signal rc_q                          : std_logic_vector(8 downto 0);
 signal rc_frames_rec_ctr             : std_logic_vector(31 downto 0);
-signal tc_pc_ready                   : std_logic;
-signal tc_pc_h_ready                 : std_logic;
-signal mc_ctrl_frame_req             : std_logic;
 signal mc_data                       : std_logic_vector(8 downto 0);
 signal mc_wr_en                      : std_logic;
 signal fc_wr_en                      : std_logic;
@@ -433,25 +206,15 @@ signal allow_rx                      : std_logic;
 signal fr_frame_size                 : std_logic_vector(15 downto 0);
 signal rc_frame_size                 : std_logic_vector(15 downto 0);
 signal mc_frame_size                 : std_logic_vector(15 downto 0);
-signal ic_dest_mac			: std_logic_vector(47 downto 0);
-signal ic_dest_ip			: std_logic_vector(31 downto 0);
-signal ic_dest_udp			: std_logic_vector(15 downto 0);
-signal ic_src_mac			: std_logic_vector(47 downto 0);
-signal ic_src_ip			: std_logic_vector(31 downto 0);
-signal ic_src_udp			: std_logic_vector(15 downto 0);
-signal pc_transmit_on			: std_logic;
 signal rc_bytes_rec                  : std_logic_vector(31 downto 0);
 signal rc_debug                      : std_logic_vector(63 downto 0);
-signal mc_busy                       : std_logic;
 signal tsmac_gbit_en                 : std_logic;
 signal mc_transmit_ctrl              : std_logic;
-signal mc_transmit_data              : std_logic;
 signal rc_loading_done               : std_logic;
 signal fr_get_frame                  : std_logic;
 signal mc_transmit_done              : std_logic;
 
 signal dbg_fr                        : std_logic_vector(95 downto 0);
-signal dbg_rc                        : std_logic_vector(63 downto 0);
 signal dbg_mc                        : std_logic_vector(63 downto 0);
 signal dbg_tc                        : std_logic_vector(63 downto 0);
 
@@ -501,28 +264,18 @@ attribute syn_keep of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs_tx_
 attribute syn_preserve of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs_tx_er : signal is true;
 
 signal pcs_txd_q, pcs_rxd_q : std_logic_vector(7 downto 0);
-signal pcs_tx_en_q, pcs_tx_er_q, pcs_rx_en_q, pcs_rx_er_q, mac_col_q, mac_crs_q : std_logic;
+signal pcs_tx_en_q, pcs_tx_er_q, pcs_rx_en_q, pcs_rx_er_q : std_logic;
 
 signal pcs_txd_qq, pcs_rxd_qq : std_logic_vector(7 downto 0);
-signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq, mac_col_qq, mac_crs_qq : std_logic;
+signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq : std_logic;
 
-signal mc_ip_size, mc_udp_size, mc_flags : std_logic_vector(15 downto 0);
-
-signal timeout_ctr : std_logic_vector(31 downto 0);
 signal timeout_noticed : std_Logic;
 attribute syn_keep of timeout_noticed : signal is true;
 attribute syn_preserve of timeout_noticed : signal is true;
 
-signal dummy_size : std_logic_vector(15 downto 0);
-signal dummy_pause : std_logic_vector(31 downto 0);
-
-signal make_reset    : std_logic;
 signal idle_too_long : std_logic;
 
-signal tc_data_not_valid : std_logic;
-
-signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
-signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
+signal mc_ident : std_logic_vector(15 downto 0);
 
 
 begin
@@ -798,9 +551,9 @@ port map(
 	  FR_FRAME_SIZE_OUT	=> fr_frame_size,
 	  FR_FRAME_PROTO_OUT	=> fr_frame_proto,
 	  FR_IP_PROTOCOL_OUT	=> fr_ip_proto,
-	  FR_ALLOWED_TYPES_IN   => fr_allowed_types,
-	  FR_ALLOWED_IP_IN      => fr_allowed_ip,
-	  FR_ALLOWED_UDP_IN     => fr_allowed_udp,
+	  FR_ALLOWED_TYPES_IN   => (others => '1'),
+	  FR_ALLOWED_IP_IN      => (others => '1'),
+	  FR_ALLOWED_UDP_IN     => (others => '1'),
 	  FR_VLAN_ID_IN		=> vlan_id,
 	
 	FR_SRC_MAC_ADDRESS_OUT	=> fr_src_mac,
@@ -908,7 +661,7 @@ imp_gen : if (USE_125MHZ_EXTCLK = 0) generate
 			RESET				=> RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
-			CLK_125_RX_OUT			=> serdes_rx_clk, --open,
+			CLK_125_RX_OUT			=> serdes_rx_clk,
 			CLK_125_IN			=> CLK_125_IN,
 			FT_TX_CLK_EN_OUT		=> mac_tx_clk_en,
 			FT_RX_CLK_EN_OUT		=> mac_rx_clk_en,
@@ -937,56 +690,6 @@ imp_gen : if (USE_125MHZ_EXTCLK = 0) generate
 			MR_AN_PAGE_RX_OUT		=> pcs_an_page_rx,
 			MR_AN_COMPLETE_OUT		=> pcs_an_complete,
 			MR_RESET_IN			=> RESET,
-			MR_MODE_IN			=> '0', --MR_MODE_IN,
-			MR_AN_ENABLE_IN			=> '1', -- do autonegotiation
-			MR_RESTART_AN_IN		=> '0', --MR_RESTART_IN,
-			-- Status and control port
-			STAT_OP				=> open,
-			CTRL_OP				=> x"0000",
-			STAT_DEBUG			=> pcs_stat_debug, --open,
-			CTRL_DEBUG			=> x"0000_0000_0000_0000"
-		);
-	end generate serdes_intclk_gen;
-
-	serdes_extclk_gen: if (USE_125MHZ_EXTCLK = 1) generate
-		-- PHY part
-		PCS_SERDES : trb_net16_med_ecp_sfp_gbe_8b
-		generic map(
-			USE_125MHZ_EXTCLK		=> 1
-		)
-		port map(
-			RESET				=> RESET,
-			GSR_N				=> GSR_N,
-			CLK_125_OUT			=> serdes_clk_125,
-			CLK_125_RX_OUT			=> serdes_rx_clk,
-			CLK_125_IN			=> '0',  -- not used
-			FT_TX_CLK_EN_OUT		=> mac_tx_clk_en,
-			FT_RX_CLK_EN_OUT		=> mac_rx_clk_en,
-			--connection to frame transmitter (tsmac)
-			FT_COL_OUT			=> mac_col,
-			FT_CRS_OUT			=> mac_crs,
-			FT_TXD_IN			=> pcs_txd,
-			FT_TX_EN_IN			=> pcs_tx_en,
-			FT_TX_ER_IN			=> pcs_tx_er,
-			FT_RXD_OUT			=> pcs_rxd,
-			FT_RX_EN_OUT			=> pcs_rx_en,
-			FT_RX_ER_OUT			=> pcs_rx_er,
-			--SFP Connection
-			SD_RXD_P_IN			=> SFP_RXD_P_IN,
-			SD_RXD_N_IN			=> SFP_RXD_N_IN,
-			SD_TXD_P_OUT			=> SFP_TXD_P_OUT,
-			SD_TXD_N_OUT			=> SFP_TXD_N_OUT,
-			SD_REFCLK_P_IN			=> SFP_REFCLK_P_IN,
-			SD_REFCLK_N_IN			=> SFP_REFCLK_N_IN,
-			SD_PRSNT_N_IN			=> SFP_PRSNT_N_IN,
-			SD_LOS_IN			=> SFP_LOS_IN,
-			SD_TXDIS_OUT			=> SFP_TXDIS_OUT,
-			-- Autonegotiation stuff
-			MR_ADV_ABILITY_IN		=> x"0020", -- full duplex only
-			MR_AN_LP_ABILITY_OUT		=> pcs_an_lp_ability,
-			MR_AN_PAGE_RX_OUT		=> pcs_an_page_rx,
-			MR_AN_COMPLETE_OUT		=> pcs_an_complete,
-			MR_RESET_IN			=> RESET,
 			MR_MODE_IN			=> '0',
 			MR_AN_ENABLE_IN			=> '1', -- do autonegotiation
 			MR_RESTART_AN_IN		=> '0',
@@ -996,7 +699,7 @@ imp_gen : if (USE_125MHZ_EXTCLK = 0) generate
 			STAT_DEBUG			=> pcs_stat_debug, --open,
 			CTRL_DEBUG			=> x"0000_0000_0000_0000"
 		);
-	end generate serdes_extclk_gen;
+	end generate serdes_intclk_gen;
 end generate imp_gen;
 
 end architecture;
