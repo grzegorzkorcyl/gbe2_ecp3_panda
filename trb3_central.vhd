@@ -196,6 +196,24 @@ port (
 );
 end component;
 
+component trb_net_reset_handler is
+generic(
+	reset_delay : std_logic_vector(15 downto 0) := x"1fff"
+	);
+port (
+	CLEAR_IN : in  std_logic;
+	clear_n_in : in std_logic;
+	clk_in : in std_logic;
+	sysclk_in : in std_logic;
+	pll_locked_in : in std_logic;
+	reset_in : in std_logic;
+	trb_reset_in : in std_logic;
+	clear_out : out std_logic;
+	reset_out : out std_logic;
+	debug_out : out std_logic
+	);
+end component;
+
   --FPGA Test
   signal time_counter, time_counter2 : unsigned(31 downto 0);
 
@@ -294,8 +312,7 @@ begin
 
 GSR_N   <= pll_lock;
   
---reset_i <= not pll_lock;
-reset_i <= '0';
+reset_i <= not pll_lock;
 
 ---------------------------------------------------------------------------
 -- Clock Handling
@@ -317,6 +334,22 @@ THE_CALIBRATION_PLL : pll_in125_out20
 		CLKOK => clk_125_i,
 		LOCK  => open);
 
+THE_RESET_HANDLER : trb_net_reset_handler
+  generic map(
+    RESET_DELAY     => x"FEEE"
+    )
+  port map(
+    CLEAR_IN        => '0',             -- reset input (high active, async)
+    CLEAR_N_IN      => '1',             -- reset input (low active, async)
+    CLK_IN          => clk_200_i,       -- raw master clock, NOT from PLL/DLL!
+    SYSCLK_IN       => clk_100_i,       -- PLL/DLL remastered clock
+    PLL_LOCKED_IN   => pll_lock,        -- master PLL lock signal (async)
+    RESET_IN        => '0',             -- general reset signal (SYSCLK)
+    TRB_RESET_IN    => '0',    -- TRBnet reset signal (SYSCLK)
+    CLEAR_OUT       => clear_i,         -- async reset out, USE WITH CARE!
+    RESET_OUT       => reset_i,    -- synchronous reset out (SYSCLK)
+    DEBUG_OUT       => open
+  );
 
   ---------------------------------------------------------------------
   -- The GbE machine for blasting out data from TRBnet
