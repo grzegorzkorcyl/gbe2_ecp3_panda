@@ -165,6 +165,8 @@ begin
 			data_ctr <= data_ctr + 1;
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then  -- in case of constructing response
 			data_ctr <= data_ctr + 1;
+		else
+			data_ctr <= data_ctr;
 		end if;
 	end if;
 end process DATA_CTR_PROC;
@@ -187,6 +189,8 @@ begin
 			data_length <= 1;
 		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
 			data_length <= data_ctr;
+		else
+			data_length <= data_length;
 		end if;
 	end if;
 end process DATA_LENGTH_PROC;
