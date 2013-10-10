@@ -1,0 +1,42 @@
+SCUBA, Version Diamond_1.3_Production (92)
+Mon Dec  5 18:26:53 2011
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2011 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : /opt/lattice/diamond/1.3/ispfpga/bin/lin/scuba -w -n fifo_2048x8x16 -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type fifodc -addr_width 11 -data_width 9 -num_words 2048 -rdata_width 18 -no_enable -pe -1 -pf -1 -e 
+    Circuit name     : fifo_2048x8x16
+    Module type      : ebfifo
+    Module Version   : 5.4
+    Ports            : 
+	Inputs       : Data[8:0], WrClock, RdClock, WrEn, RdEn, Reset, RPReset
+	Outputs      : Q[17:0], Empty, Full
+    I/O buffer       : not inserted
+    EDIF output      : suppressed
+    VHDL output      : fifo_2048x8x16.vhd
+    VHDL template    : fifo_2048x8x16_tmpl.vhd
+    VHDL testbench    : tb_fifo_2048x8x16_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : big endian
+    Report output    : fifo_2048x8x16.srp
+    Element Usage    :
+          AGEB2 : 12
+           AND2 : 2
+            CU2 : 12
+         FADD2B : 6
+        FD1P3BX : 2
+        FD1P3DX : 67
+        FD1S3BX : 1
+        FD1S3DX : 47
+            INV : 2
+            OR2 : 1
+       ROM16X1A : 30
+           XOR2 : 21
+         DP16KC : 1
+    Estimated Resource Usage:
+            LUT : 114
+            EBR : 1
+            Reg : 117

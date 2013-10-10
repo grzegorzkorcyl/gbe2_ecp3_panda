@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BaliProject version="2.0" title="tsmac36_core_only_eval" device="LFE3-150EA-8FN1156C" synthesis="synplify" default_implementation="impl">
+    <Implementation title="impl" dir="impl" description="impl" default_strategy="tsmac36_core_only_eval_setting">
+        <Options>
+            <Option name="HDL type" value="VHDL"></Option>
+            <Option name="def_top" value="ts_mac_core_only_top"></Option>
+        </Options>
+        <Source name="../../src/rtl/top/ts_mac_core_only_top.vhd" type="VHDL"></Source>
+        <Source name="tsmac36_core_only_eval.lpf" type="Logic Preference"></Source>
+    </Implementation>
+    <Strategy name="tsmac36_core_only_eval_setting" file="tsmac36_core_only_eval_setting.sty"></Strategy>
+</BaliProject>

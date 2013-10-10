@@ -1,0 +1,4 @@
+#define USER_NAME tsmac3
+#define SGMII_TSMAC
+#define DEVICE_ECP2M
+#define DEVICE_ECP2_ECP2M

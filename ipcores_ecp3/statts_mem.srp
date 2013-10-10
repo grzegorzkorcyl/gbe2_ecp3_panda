@@ -1,0 +1,28 @@
+SCUBA, Version Diamond_1.3_Production (92)
+Mon Dec  5 22:40:38 2011
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2011 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : /opt/lattice/diamond/1.3/ispfpga/bin/lin/scuba -w -n statts_mem -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -device LFE3-150EA -type ramdps -raddr_width 10 -rwidth 8 -waddr_width 8 -wwidth 32 -rnum_words 1020 -wnum_words 255 -cascade -1 -e 
+    Circuit name     : statts_mem
+    Module type      : RAM_DP
+    Module Version   : 6.1
+    Ports            : 
+	Inputs       : WrAddress[7:0], RdAddress[9:0], Data[31:0], WE, RdClock, RdClockEn, Reset, WrClock, WrClockEn
+	Outputs      : Q[7:0]
+    I/O buffer       : not inserted
+    EDIF output      : suppressed
+    VHDL output      : statts_mem.vhd
+    VHDL template    : statts_mem_tmpl.vhd
+    VHDL testbench    : tb_statts_mem_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : big endian
+    Report output    : statts_mem.srp
+    Element Usage    :
+       PDPW16KC : 1
+    Estimated Resource Usage:
+            EBR : 1

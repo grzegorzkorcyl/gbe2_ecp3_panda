@@ -1,0 +1,5 @@
+MODULE serdes_gbe_0_intclock_8b DEFIN serdes_gbe_0_intclock_8b.vhd
+	SUBMODULE PCSC
+		INSTANCE PCSC_INST
+	SUBMODULE VLO
+		INSTANCE vlo_inst

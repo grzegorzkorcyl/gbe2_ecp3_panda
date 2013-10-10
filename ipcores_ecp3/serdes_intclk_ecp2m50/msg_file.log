@@ -1,0 +1,14 @@
+    Module Name: serdes_gbe_0_intclock_8b
+    Core Name: PCS
+    LPC file : serdes_gbe_0_intclock_8b.lpc
+    Parameter File : serdes_gbe_0_intclock_8b.pp
+    Command line: /opt/lattice/ispLEVER8.0/isptools/ispfpga/bin/lin/orcapp -Fmaco serdes_gbe_0_intclock_8b.pp
+    Return Value:
+    
+    
+    
+ Module PCS has been generated in /home/greg/projects/trbnet/gbe_ecp2m/ipcores/serdes_intclk_ecp2m50 successfully!
+
+/home/greg/.isplever_lin/ispcpld/bin/hdl2jhd -tfi -mod serdes_gbe_0_intclock_8b -ext readme -out serdes_gbe_0_intclock_8b -tpl serdes_gbe_0_intclock_8b.tft serdes_gbe_0_intclock_8b.vhd
+
+Done successfully!

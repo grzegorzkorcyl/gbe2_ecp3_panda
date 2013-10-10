@@ -1,0 +1,42 @@
+Running in Lattice mode
+
+
+Starting:    /opt/synplify/syn96L3/synplify_linux/linux/mbin/synbatch
+Install:     /opt/synplify/syn96L3/synplify_linux
+Date:        Thu Dec 10 15:57:42 2009
+Version:     9.6L3
+
+
+Arguments:   -product synplify  -batch /home/greg/NewHub2/hub2/ipexpress/sgmii_gbe_pcs32/syn_results/sgmii_gbe_pcs32.prj
+ProductType: synplify
+
+
+
+
+
+Running synthesis on sgmii_gbe_pcs32:syn_results
+
+log file: "/home/greg/NewHub2/hub2/ipexpress/sgmii_gbe_pcs32/syn_results/sgmii_gbe_pcs32.srf"
+
+
+Running Verilog Compiler...
+
+Verilog Compiler Completed
+Return Code: 0
+
+
+Running lattice-ecp2m Mapper...
+
+Option not allowed with current settings and will be ignored:  fixgatedclocks
+Option not allowed with current settings and will be ignored:  fixgeneratedclocks
+
+Option not allowed with current settings and will be ignored:  fixgatedclocks
+Option not allowed with current settings and will be ignored:  fixgeneratedclocks
+
+lattice-ecp2m Mapper Completed with warnings
+Return Code: 1
+
+
+exit status=0
+
+

@@ -1,0 +1,29 @@
+SCUBA, Version Diamond_1.3_Production (92)
+Thu Sep 22 11:24:53 2011
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2011 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : /opt/lattice/diamond/1.3/ispfpga/bin/lin/scuba -w -n mac_init_mem -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type romblk -device LFE3-150EA -addr_width 6 -data_width 8 -num_words 54 -outdata REGISTERED -memfile macInitDataInvWithMac.mem -memformat bin -cascade -1 -e 
+    Circuit name     : mac_init_mem
+    Module type      : EBR_ROM
+    Module Version   : 5.0
+    Ports            : 
+	Inputs       : Address[5:0], OutClock, OutClockEn, Reset
+	Outputs      : Q[7:0]
+    I/O buffer       : not inserted
+    Memory file      : macInitDataInvWithMac.mem
+    EDIF output      : suppressed
+    VHDL output      : mac_init_mem.vhd
+    VHDL template    : mac_init_mem_tmpl.vhd
+    VHDL testbench    : tb_mac_init_mem_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : big endian
+    Report output    : mac_init_mem.srp
+    Element Usage    :
+         DP16KC : 1
+    Estimated Resource Usage:
+            EBR : 1

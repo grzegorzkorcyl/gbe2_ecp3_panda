@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BaliProject version="1.3" title="sgmii_gbe_pcs36_reference_eval" device="LFE3-150EA-8FN1156C" synthesis="synplify" default_implementation="sgmii_gbe_pcs36_reference_eval_hb">
+    <Implementation title="sgmii_gbe_pcs36_reference_eval_hb" dir="sgmii_gbe_pcs36_reference_eval_hb" description="sgmii_gbe_pcs36_reference_eval_hb" default_strategy="sgmii_gbe_pcs36_reference_eval">
+        <Options>
+            <Option name="top" value="top_hb"/>
+        </Options>
+<Source name="../../../src/rtl/template/ecp3/register_interface_hb.v" type="Verilog"/>
+<Source name="../../../src/rtl/template/ecp3/rate_resolution.v" type="Verilog"/>
+<Source name="../../../src/rtl/template/ecp3/tx_reset_sm.v" type="Verilog"/>
+<Source name="../../../src/rtl/template/ecp3/rx_reset_sm.v" type="Verilog"/>
+<Source name="../../../../models/ecp3/pcs_serdes/pcs_serdes.v" type="Verilog"/>
+<Source name="../../../src/rtl/top/ecp3/top_hb.vhd" type="VHDL"/>
+        <Source name="sgmii_gbe_pcs36_reference_eval.lpf" type="Logic Preference"/>
+    </Implementation>
+ <Strategy name="sgmii_gbe_pcs36_reference_eval" file="sgmii_gbe_pcs36_reference_eval.sty"/>
+</BaliProject>

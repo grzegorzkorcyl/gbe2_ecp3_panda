@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BaliProject version="1.3" title="sgmii_gbe_pcs36_core_only_eval" device="LFE3-150EA-8FN1156C" synthesis="synplify" default_implementation="sgmii_gbe_pcs36_top_pcs_core_only">
+    <Implementation title="sgmii_gbe_pcs36_top_pcs_core_only" dir="sgmii_gbe_pcs36_top_pcs_core_only" description="sgmii_gbe_pcs36_top_pcs_core_only" default_strategy="sgmii_gbe_pcs36_core_only_eval">
+        <Options>
+     <Option name="top" value="top_pcs_core_only"/>
+     </Options>
+<Source name="../../../src/rtl/template/ecp3/register_interface_hb.v" type="Verilog"/>
+<Source name="../../../src/rtl/top/ecp3/top_pcs_core_only.vhd" type="VHDL"/>
+        <Source name="sgmii_gbe_pcs36_core_only_eval.lpf" type="Logic Preference"/>
+    </Implementation>
+    <Strategy name="sgmii_gbe_pcs36_core_only_eval" file="sgmii_gbe_pcs36_core_only_eval.sty"/>
+</BaliProject>

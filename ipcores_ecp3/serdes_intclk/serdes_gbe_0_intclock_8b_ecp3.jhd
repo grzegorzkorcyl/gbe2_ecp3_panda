@@ -1,0 +1,13 @@
+MODULE rx_reset_sm DEFIN serdes_gbe_0_intclock_8b_ecp3.vhd
+MODULE tx_reset_sm DEFIN serdes_gbe_0_intclock_8b_ecp3.vhd
+MODULE serdes_gbe_0_intclock_8b_ecp3 DEFIN serdes_gbe_0_intclock_8b_ecp3.vhd
+	SUBMODULE tx_reset_sm
+		INSTANCE tx_reset_sm_ch
+	SUBMODULE rx_reset_sm
+		INSTANCE rx_reset_sm_ch0
+	SUBMODULE PCSD
+		INSTANCE PCSD_INST
+	SUBMODULE VHI
+		INSTANCE vhi_inst
+	SUBMODULE VLO
+		INSTANCE vlo_inst

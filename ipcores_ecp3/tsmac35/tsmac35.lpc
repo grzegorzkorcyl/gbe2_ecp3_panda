@@ -1,0 +1,38 @@
+[Device]
+Family=ep5c00
+PartType=LFE3-150EA
+PartName=LFE3-150EA-8FN1156C
+SpeedGrade=8
+Package=FPBGA1156
+OperatingCondition=COM
+Status=P
+
+[IP]
+VendorName=Lattice Semiconductor Corporation
+CoreType=IPCFG
+CoreStatus=Demo
+CoreName=Tri-Speed Ethernet MAC
+CoreRevision=3.5
+ModuleName=tsmac35
+SourceFormat=VHDL
+ParameterFileVersion=1.0
+Date=06/19/2012
+Time=09:58:20
+
+[Parameters]
+MIIM=No
+MODE=SGMII easy connect
+SYNP_TOOL=1
+PREC_TOOL=0
+MODS_TOOL=1
+ALDC_TOOL=0
+MULT_WB=NO
+LOOPBACK=NO
+STAT_REGS=NO
+
+[Files]
+Synthesis=
+Simulation=
+Logical=
+Physical=
+Misc=

@@ -1,0 +1,7 @@
+MODULE mac_init_mem DEFIN mac_init_mem.vhd
+	SUBMODULE DP16KC
+		INSTANCE mac_init_mem_0_0_0
+	SUBMODULE VLO
+		INSTANCE scuba_vlo_inst
+	SUBMODULE VHI
+		INSTANCE scuba_vhi_inst

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="serdes_gbe_0_intclock_8b_ecp3" module="serdes_gbe_0_intclock_8b_ecp3" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2011 10 05 15:38:10.991" version="8.1" type="Module" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="serdes_gbe_0_intclock_8b_ecp3.lpc" type="lpc" modified="2011 10 05 15:38:09.000"/>
+		<File name="serdes_gbe_0_intclock_8b_ecp3.pp" type="pp" modified="2011 10 05 15:38:09.000"/>
+		<File name="serdes_gbe_0_intclock_8b_ecp3.sym" type="sym" modified="2011 10 05 15:38:09.000"/>
+		<File name="serdes_gbe_0_intclock_8b_ecp3.tft" type="tft" modified="2011 10 05 15:38:09.000"/>
+		<File name="serdes_gbe_0_intclock_8b_ecp3.txt" type="pcs_module" modified="2011 10 05 15:38:09.000"/>
+		<File name="serdes_gbe_0_intclock_8b_ecp3.vhd" type="top_level_vhdl" modified="2011 10 05 15:38:09.000"/>
+  </Package>
+</DiamondModule>

@@ -1,0 +1,5 @@
+block RESETPATHS;
+block ASYNCPATHS;
+FREQUENCY NET "tx_clk_125_c" 125.0 MHz PAR_ADJ 25;
+FREQUENCY NET "rx_clk_125_c" 125.0 MHz PAR_ADJ 25;
+FREQUENCY NET "serdes_recovered_clk_c" 125.0 MHz PAR_ADJ 25;

@@ -1,0 +1,9 @@
+block RESETPATHS;
+block ASYNCPATHS;
+#
+FREQUENCY NET "in_clk_125_c" 125.0 MHz PAR_ADJ 25;
+FREQUENCY NET "out_clk_125_c" 125.0 MHz PAR_ADJ 25;
+FREQUENCY NET "hclk_c" 50.0 MHz PAR_ADJ 25;
+FREQUENCY NET "serdes_recovered_clk" 125.0 MHz PAR_ADJ 25;
+#
+#
