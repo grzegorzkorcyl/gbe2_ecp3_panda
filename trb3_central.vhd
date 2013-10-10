@@ -214,6 +214,25 @@ port (
 	);
 end component;
 
+component local_link_dummy is
+generic (
+	DO_SIMULATION        : integer range 0 to 1 := 1
+);
+port (
+	RESET_N               : in std_logic;
+	LL_DATA_OUT           : out std_logic_vector(31 downto 0);
+	LL_REM_OUT            : out std_logic_vector(1 downto 0);
+	LL_SOF_N_OUT          : out std_logic;
+	LL_EOF_N_OUT          : out std_logic;
+	LL_SRC_READY_N_OUT    : out std_logic;
+	LL_DST_READY_N_IN     : in std_logic;
+	LL_LEN_OUT            : out std_logic_vector(15 downto 0);
+	LL_LEN_READY_OUT      : out std_logic;
+	LL_LEN_ERR_OUT        : out std_logic;
+	LL_READ_CLK_IN        : in std_logic
+);
+end component;
+
   --FPGA Test
   signal time_counter, time_counter2 : unsigned(31 downto 0);
 
@@ -306,6 +325,9 @@ end component;
   signal reset_via_gbe : std_logic;
   
   signal reset_ctr : std_logic_vector(31 downto 0);
+  signal ll_data : std_logic_vector(31 downto 0);
+  signal ll_rem : std_logic_vector(1 downto 0);
+  signal ll_sof_n, ll_eof_n, ll_src_n, ll_dst_n, ll_clk : std_logic;
 
 
 begin
@@ -381,10 +403,40 @@ THE_RESET_HANDLER : trb_net_reset_handler
 	  SFP_PRSNT_N_IN              => SFP_MOD0(8), -- SFP Present ('0' = SFP in place, '1' = no SFP mounted)
 	  SFP_LOS_IN                  => SFP_LOS(8), -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 	  SFP_TXDIS_OUT               => SFP_TXDIS(8),  -- SFP disable
+	  
+	  SCTRL_DEST_MAC_IN       => x"0000aabbccdd",
+	SCTRL_DEST_IP_IN        => x"ffffffff",
+	SCTRL_DEST_UDP_IN       => x"1111",
+	
+	LL_DATA_IN              => ll_data,
+	LL_REM_IN               => ll_rem,
+	LL_SOF_N_IN             => ll_sof_n,
+	LL_EOF_N_IN             => ll_eof_n,
+	LL_SRC_READY_N_IN       => ll_src_n,
+	LL_DST_READY_N_OUT      => ll_dst_n,
+	LL_READ_CLK_OUT         => ll_clk,
 
     -- interface between main_controller and hub logic
     MC_UNIQUE_ID_IN          => mc_unique_id
   );
+  
+ll_dummy : local_link_dummy
+generic map(
+	DO_SIMULATION        => 0
+)
+port map(
+	RESET_N               => gsr_n,
+	LL_DATA_OUT           => ll_data,
+	LL_REM_OUT            => ll_rem,
+	LL_SOF_N_OUT          => ll_sof_n,
+	LL_EOF_N_OUT          => ll_eof_n,
+	LL_SRC_READY_N_OUT    => ll_src_n,
+	LL_DST_READY_N_IN     => ll_dst_n,
+	LL_LEN_OUT            => open,
+	LL_LEN_READY_OUT      => open,
+	LL_LEN_ERR_OUT        => open,
+	LL_READ_CLK_IN        => ll_clk
+);
 
   FPGA1_TTL <= (others => 'Z');
   FPGA2_TTL <= (others => 'Z');

@@ -71,6 +71,18 @@ port (
 	CFG_MULT_ENABLE_IN           : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
+	
+	SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
+	SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
+	SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
+
+	LL_DATA_IN              : in std_logic_vector(31 downto 0);
+	LL_REM_IN               : in std_logic_vector(1 downto 0);
+	LL_SOF_N_IN             : in std_logic;
+	LL_EOF_N_IN             : in std_logic;
+	LL_SRC_READY_N_IN       : in std_logic;
+	LL_DST_READY_N_OUT      : out std_logic;
+	LL_READ_CLK_OUT         : out std_logic;
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -226,6 +238,18 @@ port map(
 	DHCP_DONE_OUT		=> dhcp_done,
 		
 	MAKE_RESET_OUT           => MAKE_RESET_OUT,
+	
+	SCTRL_DEST_MAC_IN       => SCTRL_DEST_MAC_IN,
+	SCTRL_DEST_IP_IN        => SCTRL_DEST_IP_IN,
+	SCTRL_DEST_UDP_IN       => SCTRL_DEST_UDP_IN,
+
+	LL_DATA_IN              => LL_DATA_IN,
+	LL_REM_IN               => LL_REM_IN,
+	LL_SOF_N_IN             => LL_SOF_N_IN,
+	LL_EOF_N_IN             => LL_EOF_N_IN,
+	LL_SRC_READY_N_IN       => LL_SRC_READY_N_IN,
+	LL_DST_READY_N_OUT      => LL_DST_READY_N_OUT,
+	LL_READ_CLK_OUT         => LL_READ_CLK_OUT,
 	
 	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
 	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,

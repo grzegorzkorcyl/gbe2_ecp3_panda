@@ -38,6 +38,18 @@ port(
 	SFP_LOS_IN					: in	std_logic; -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
 	
+	SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
+	SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
+	SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
+
+	LL_DATA_IN              : in std_logic_vector(31 downto 0);
+	LL_REM_IN               : in std_logic_vector(1 downto 0);
+	LL_SOF_N_IN             : in std_logic;
+	LL_EOF_N_IN             : in std_logic;
+	LL_SRC_READY_N_IN       : in std_logic;
+	LL_DST_READY_N_OUT      : out std_logic;
+	LL_READ_CLK_OUT         : out std_logic;
+	
 	-- interface between main_controller and hub logic
 	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0)
 );
@@ -335,6 +347,19 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	CFG_GBE_ENABLE_IN           => '1',
 	CFG_IPU_ENABLE_IN           => '1',
 	CFG_MULT_ENABLE_IN          => '1',
+	
+	SCTRL_DEST_MAC_IN       => SCTRL_DEST_MAC_IN,
+	SCTRL_DEST_IP_IN        => SCTRL_DEST_IP_IN,
+	SCTRL_DEST_UDP_IN       => SCTRL_DEST_UDP_IN,
+
+	LL_DATA_IN              => LL_DATA_IN,
+	LL_REM_IN               => LL_REM_IN,
+	LL_SOF_N_IN             => LL_SOF_N_IN,
+	LL_EOF_N_IN             => LL_EOF_N_IN,
+	LL_SRC_READY_N_IN       => LL_SRC_READY_N_IN,
+	LL_DST_READY_N_OUT      => LL_DST_READY_N_OUT,
+	LL_READ_CLK_OUT         => LL_READ_CLK_OUT,
+	
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
