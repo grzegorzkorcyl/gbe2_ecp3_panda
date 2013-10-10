@@ -398,8 +398,8 @@ THE_RESET_HANDLER : trb_net_reset_handler
 	  SFP_RXD_N_IN                => SFP_RX_N(9),
 	  SFP_TXD_P_OUT               => SFP_TX_P(9),
 	  SFP_TXD_N_OUT               => SFP_TX_N(9),
-	  SFP_REFCLK_P_IN             => open, --SFP_REFCLKP(2),
-	  SFP_REFCLK_N_IN             => open, --SFP_REFCLKN(2),
+	  SFP_REFCLK_P_IN             => '0', --SFP_REFCLKP(2),
+	  SFP_REFCLK_N_IN             => '1', --SFP_REFCLKN(2),
 	  SFP_PRSNT_N_IN              => SFP_MOD0(8), -- SFP Present ('0' = SFP in place, '1' = no SFP mounted)
 	  SFP_LOS_IN                  => SFP_LOS(8), -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 	  SFP_TXDIS_OUT               => SFP_TXDIS(8),  -- SFP disable
