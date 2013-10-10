@@ -527,7 +527,7 @@ port map(
 	  CLK			=> CLK,
 	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
-	  ALLOW_RX_IN		=> allow_rx,
+	  ALLOW_RX_IN		=> '1',
 	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
 
   -- input signals from TS_MAC
@@ -550,7 +550,7 @@ port map(
 	  FR_ALLOWED_TYPES_IN   => (others => '1'),
 	  FR_ALLOWED_IP_IN      => (others => '1'),
 	  FR_ALLOWED_UDP_IN     => (others => '1'),
-	  FR_VLAN_ID_IN		=> vlan_id,
+	  FR_VLAN_ID_IN		=> (others => '0'),
 	
 	FR_SRC_MAC_ADDRESS_OUT	=> fr_src_mac,
 	FR_DEST_MAC_ADDRESS_OUT => fr_dest_mac,
