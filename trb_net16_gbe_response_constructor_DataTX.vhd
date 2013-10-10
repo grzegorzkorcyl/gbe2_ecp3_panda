@@ -530,8 +530,8 @@ TC_FRAME_TYPE_OUT  <= x"0008";  -- ip
 TC_DEST_MAC_OUT    <= x"986c2ff31800";
 TC_DEST_IP_OUT     <= x"64d9fea9";
 TC_DEST_UDP_OUT    <= x"a861";
-TC_SRC_MAC_OUT     <= PS_MY_MAC_IN;
-TC_SRC_IP_OUT      <= PS_MY_IP_IN;
+TC_SRC_MAC_OUT     <= g_MY_MAC;
+TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";  -- udp
 
