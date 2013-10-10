@@ -177,8 +177,10 @@ attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state
 attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state, dhcp_done : signal is true;
 
 signal mc_busy                      : std_logic;
-
+signal zeros                        : std_logic_vector(c_MAX_PROTOCOLS -1 downto 0);
 begin
+
+zeros <= (others => '0');
 
 unique_id <= MC_UNIQUE_ID_IN;
 
@@ -316,7 +318,7 @@ begin
 			
 		when CHECK_BUSY =>
 			redirect_state <= x"6";
-			if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
+			if ((ps_busy and RC_FRAME_PROTO_IN) = zeros) then
 				redirect_next_state <= LOAD;
 			else
 				redirect_next_state <= BUSY;
@@ -332,7 +334,7 @@ begin
 		
 		when BUSY =>
 			redirect_state <= x"3";
-			if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
+			if ((ps_busy and RC_FRAME_PROTO_IN) = zeros) then
 				redirect_next_state <= LOAD;
 			else
 				redirect_next_state <= BUSY;
