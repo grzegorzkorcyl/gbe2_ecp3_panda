@@ -59,7 +59,9 @@ sim_gen : if (DO_SIMULATION = 1) generate
 process(LL_READ_CLK_IN)
 begin
 	if rising_edge(LL_READ_CLK_IN) then
-		if (link_current_state = CLEANUP) then
+		if (RESET = '1') then
+			data_stop_val <= x"0000_0010";
+		elsif (link_current_state = CLEANUP) then
 			data_stop_val    <= data_stop_val + x"1";
 		else
 			data_stop_val <= data_stop_val;
