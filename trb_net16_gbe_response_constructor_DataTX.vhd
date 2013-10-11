@@ -145,6 +145,9 @@ signal udp_checksum            : std_logic_vector(31 downto 0);
 signal prep_cs_ctr             : std_logic_vector(3 downto 0);
 signal udp_checksum_right      : std_logic_vector(15 downto 0);
 signal tx_fifo_wr_q            : std_logic;
+signal registered_mac : std_logic_vector(47 downto 0);
+signal registered_ip : std_logic_vector(31 downto 0);
+signal registered_udp : std_logic_vector(15 downto 0);
 
 begin
 
@@ -524,12 +527,26 @@ begin
 end process UDP_CHECKSUM_PROC;
 
 
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if local_ll_sof = '1' then
+			registered_mac <= SCTRL_DEST_MAC_IN;
+			registered_ip  <= SCTRL_DEST_IP_IN;
+			registered_udp <= SCTRL_DEST_UDP_IN;
+		else
+			registered_mac <= registered_mac;
+			registered_ip  <= registered_ip;
+			registered_udp <= registered_udp;
+		end if;
+	end if;
+end process;
 
 
 TC_FRAME_TYPE_OUT  <= x"0008";  -- ip
-TC_DEST_MAC_OUT    <= x"986c2ff31800";
-TC_DEST_IP_OUT     <= x"64d9fea9";
-TC_DEST_UDP_OUT    <= x"a861";
+TC_DEST_MAC_OUT    <= registered_mac; --x"986c2ff31800";
+TC_DEST_IP_OUT     <= registered_ip; --x"64d9fea9";
+TC_DEST_UDP_OUT    <= registered_udp; --x"a861";
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
