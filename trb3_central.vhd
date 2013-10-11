@@ -404,9 +404,9 @@ THE_RESET_HANDLER : trb_net_reset_handler
 	  SFP_LOS_IN                  => SFP_LOS(8), -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 	  SFP_TXDIS_OUT               => SFP_TXDIS(8),  -- SFP disable
 	  
-	  SCTRL_DEST_MAC_IN       => x"0000aabbccdd",
-	SCTRL_DEST_IP_IN        => x"ffffffff",
-	SCTRL_DEST_UDP_IN       => x"1111",
+	  SCTRL_DEST_MAC_IN       => x"986c2ff31800", --x"0000aabbccdd",
+	SCTRL_DEST_IP_IN          => x"64d9fea9", --x"ffffffff",
+	SCTRL_DEST_UDP_IN         => x"a861", --x"1111",
 	
 	LL_DATA_IN              => ll_data,
 	LL_REM_IN               => ll_rem,
