@@ -592,7 +592,7 @@ port map(
 	MONITOR_DROPPED_OUT   => open
   );	
 
-imp_gen : if (USE_125MHZ_EXTCLK = 0) generate	
+imp_gen : if (DO_SIMULATION = 0) generate	
 	-- MAC part
 	MAC: tsmac36 --tsmac35
 	port map(
@@ -727,5 +727,34 @@ imp_gen : if (USE_125MHZ_EXTCLK = 0) generate
 		);
 	end generate serdes_intclk_gen;
 end generate imp_gen;
+
+-- in case of simulation we include a fake MAC and no PHY/SerDes.
+sim_gen: if (DO_SIMULATION = 1) generate
+	
+
+	-- add external test clock for the MAC part
+	serdes_clk_125 <= TEST_CLK;
+
+	-- fake signals
+	pcs_an_lp_ability <= x"4060";
+	pcs_an_page_rx    <= '0';
+	pcs_an_complete   <= '1';
+	mac_tx_clk_en     <= '1';
+	mac_rx_clk_en     <= '1';
+	
+
+	pcs_stat_debug(63 downto 0)   <= (others => '0');
+
+	SFP_TXD_P_OUT                 <= '1';
+	SFP_TXD_N_OUT                 <= '0';
+	SFP_TXDIS_OUT                 <= '0';
+	
+		--mac_rxd <= MAC_RXD_IN;
+		--mac_rx_eof <= MAC_RX_EOF_IN;
+		--mac_rx_en <= MAC_RX_EN_IN;
+		
+		serdes_rx_clk <= TEST_CLK;
+		
+end generate sim_gen;
 
 end architecture;
