@@ -56,7 +56,7 @@ port (
 	-- counters from response constructors
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 	SENT_FRAMES_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 63 - 1 downto 0);
+	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 64 - 1 downto 0);
 	
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
