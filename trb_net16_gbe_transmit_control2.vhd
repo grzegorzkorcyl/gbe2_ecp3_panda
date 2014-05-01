@@ -78,7 +78,7 @@ signal mon_packets_sent_ctr : std_logic_vector(31 downto 0);
 
 begin
 
-TRANSMIT_MACHINE_PROC : process(CLK)
+TRANSMIT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		transmit_current_state <= IDLE;
@@ -230,8 +230,8 @@ begin
 		end if;
 	end if;
 end process;
-FC_IP_SIZE_OUT      <= ip_size; 
-FC_UDP_SIZE_OUT		<= full_packet_size; --TC_FRAME_SIZE_IN;
+FC_IP_SIZE_OUT      <= x"aa"; --ip_size; 
+FC_UDP_SIZE_OUT		<= x"aa"; --full_packet_size; --TC_FRAME_SIZE_IN;
 
 FC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
 FC_FLAGS_OFFSET_OUT(13) <= more_fragments;
