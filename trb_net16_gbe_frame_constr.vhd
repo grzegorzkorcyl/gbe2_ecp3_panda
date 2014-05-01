@@ -257,7 +257,7 @@ begin
 end process constructMachineProc;
 
 --find next state of construct machine
-constructMachine: process( constructCurrentState, START_OF_DATA_IN, END_OF_DATA_IN, headers_int_counter, put_udp_headers, CUR_MAX, FRAME_TYPE_IN, DEST_IP_ADDRESS_IN, DEST_UDP_PORT_IN)
+constructMachine: process( constructCurrentState, START_OF_DATA_IN, END_OF_DATA_IN, headers_int_counter, put_udp_headers, CUR_MAX, FRAME_TYPE_IN, DEST_UDP_PORT_IN)
 begin
 	constructNextState <= constructCurrentState;
 	if( headers_int_counter = cur_max ) then    --can be checked everytime - if not in use, counter and cur_max are 0
