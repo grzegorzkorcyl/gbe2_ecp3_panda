@@ -173,7 +173,7 @@ end process SAVE_SERVER_ADDR_PROC;
 
 -- **** MAIN MACHINE PART
 
-MAIN_MACHINE_PROC : process(CLK)
+MAIN_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		main_current_state <= BOOTING;
@@ -186,7 +186,7 @@ begin
 	end if;
 end process MAIN_MACHINE_PROC;
 
-MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, wait_ctr, receive_current_state, PS_DATA_IN)
+MAIN_MACHINE : process(main_current_state, saved_true_ip, saved_proposed_ip, DHCP_START_IN, construct_current_state, wait_ctr, receive_current_state, PS_DATA_IN)
 begin
 
 	case (main_current_state) is
@@ -274,7 +274,7 @@ begin
 	end if;
 end process RECEIVE_MACHINE_PROC;
 
-RECEIVE_MACHINE : process(receive_current_state, main_current_state, PS_DATA_IN, PS_DEST_MAC_ADDRESS_IN, g_MY_MAC, PS_ACTIVATE_IN, PS_WR_EN_IN, save_ctr)
+RECEIVE_MACHINE : process(receive_current_state, saved_transaction_id, saved_dhcp_type, bootp_hdr, main_current_state, PS_DATA_IN, PS_DEST_MAC_ADDRESS_IN, g_MY_MAC, PS_ACTIVATE_IN, PS_WR_EN_IN, save_ctr)
 begin
 	case receive_current_state is
 	
@@ -439,7 +439,7 @@ end process SAVE_VALUES_PROC;
 
 -- **** MESSAGES CONSTRUCTING PART
 
-CONSTRUCT_MACHINE_PROC : process(CLK)
+CONSTRUCT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 			construct_current_state <= IDLE;
@@ -579,7 +579,7 @@ end process LOAD_CTR_PROC;
 --	end if;
 --end process TC_WR_PROC;
 
-TC_DATA_PROC : process(CLK, construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
+TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (construct_current_state) is
