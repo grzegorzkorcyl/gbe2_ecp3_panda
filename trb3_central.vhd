@@ -328,6 +328,7 @@ end component;
   signal ll_data : std_logic_vector(31 downto 0);
   signal ll_rem : std_logic_vector(1 downto 0);
   signal ll_sof_n, ll_eof_n, ll_src_n, ll_dst_n, ll_clk : std_logic;
+  signal gbe_ready, reset_clients_n : std_logic;
 
 
 begin
@@ -388,6 +389,7 @@ THE_RESET_HANDLER : trb_net_reset_handler
 	  TEST_CLK                    => '0',
 	  CLK_125_IN                  => clk_125_i,
 	  RESET                       => reset_i,
+	  GBE_READY_OUT               => gbe_ready,
 	  GSR_N                       => gsr_n,
 	  --gk 23.04.10
 	  LED_PACKET_SENT_OUT         => open, --buf_SFP_LED_ORANGE(17),
@@ -420,12 +422,14 @@ THE_RESET_HANDLER : trb_net_reset_handler
     MC_UNIQUE_ID_IN          => mc_unique_id
   );
   
+  reset_clients_n <= '0' when gbe_ready = '0' else gsr_n;
+  
 ll_dummy : local_link_dummy
 generic map(
 	DO_SIMULATION        => 1
 )
 port map(
-	RESET_N               => gsr_n,
+	RESET_N               => reset_clients_n,
 	LL_DATA_OUT           => ll_data,
 	LL_REM_OUT            => ll_rem,
 	LL_SOF_N_OUT          => ll_sof_n,
