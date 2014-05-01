@@ -374,7 +374,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, prep_cs_ctr, local_ll_src_ready, local_ll_sof, local_ll_eof, too_much_data, PS_SELECTED_IN, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded)
+DISSECT_MACHINE : process(dissect_current_state, prep_cs_ctr, local_ll_src_ready, local_ll_sof, local_ll_eof, too_much_data, PS_SELECTED_IN, tx_loaded_ctr, tx_data_ctr)
 begin
 	case dissect_current_state is
 	

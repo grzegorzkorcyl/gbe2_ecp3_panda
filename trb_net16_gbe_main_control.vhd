@@ -280,12 +280,12 @@ TC_DATA_OUT <= tc_data;
 proto_select <= RC_FRAME_PROTO_IN when disable_redirect = '0' else (others => '0');
 
 -- gk 07.11.11
-DISABLE_REDIRECT_PROC : process(CLK)
+DISABLE_REDIRECT_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
+	if (RESET = '1') then
 			disable_redirect <= '0';
-		elsif (redirect_current_state = CHECK_TYPE) then
+	elsif rising_edge(CLK) then
+		if (redirect_current_state = CHECK_TYPE) then
 			if (link_current_state /= ACTIVE and link_current_state /= GET_ADDRESS) then
 				disable_redirect <= '1';
 			elsif (link_current_state = GET_ADDRESS and RC_FRAME_PROTO_IN /= "10") then
@@ -307,14 +307,12 @@ begin
 	end if;
 end process SYNC_PROC;
 
-REDIRECT_MACHINE_PROC : process(CLK)
+REDIRECT_MACHINE_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			redirect_current_state <= IDLE;
-		else
-			redirect_current_state <= redirect_next_state;
-		end if;
+	if (RESET = '1') then
+		redirect_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+		redirect_current_state <= redirect_next_state;
 	end if;
 end process REDIRECT_MACHINE_PROC;
 
@@ -390,12 +388,12 @@ end process REDIRECT_MACHINE;
 rc_rd_en <= '1' when redirect_current_state = LOAD or redirect_current_state = DROP else '0';
 RC_RD_EN_OUT <= rc_rd_en;
 
-LOADING_DONE_PROC : process(CLK)
+LOADING_DONE_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			RC_LOADING_DONE_OUT <= '0';
-		elsif (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
+	if (RESET = '1') then
+		RC_LOADING_DONE_OUT <= '0';
+	elsif rising_edge(CLK) then
+		if (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
 			RC_LOADING_DONE_OUT <= '1';
 		else
 			RC_LOADING_DONE_OUT <= '0';
@@ -412,10 +410,12 @@ begin
 	end if;
 end process PS_WR_EN_PROC;
 
-LOADED_BYTES_CTR_PROC : process(CLK)
+LOADED_BYTES_CTR_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (redirect_current_state = IDLE) then
+	if (RESET = '1') then
+		loaded_bytes_ctr <= (others => '0');
+	elsif rising_edge(CLK) then
+		if (redirect_current_state = IDLE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (redirect_current_state = LOAD or redirect_current_state = DROP) and (rc_rd_en = '1') then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
@@ -425,15 +425,15 @@ begin
 	end if;
 end process LOADED_BYTES_CTR_PROC;
 
-FIRST_BYTE_PROC : process(CLK)
+FIRST_BYTE_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
+	if (RESET = '1') then
+		first_byte <= '0';
+	elsif rising_edge(CLK) then
 		first_byte_q  <= first_byte;
 		first_byte_qq <= first_byte_q;
 		
-		if (RESET = '1') then
-			first_byte <= '0';
-		elsif (redirect_current_state = IDLE) then
+		if (redirect_current_state = IDLE) then
 			first_byte <= '1';
 		else
 			first_byte <= '0';
@@ -444,14 +444,12 @@ end process FIRST_BYTE_PROC;
 --*********************
 --	DATA FLOW CONTROL
 
-FLOW_MACHINE_PROC : process(CLK)
+FLOW_MACHINE_PROC : process(RESET, CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      flow_current_state <= IDLE;
-    else
+	if (RESET = '1') then
+		flow_current_state <= IDLE;
+  elsif rising_edge(CLK) then
       flow_current_state <= flow_next_state;
-    end if;
   end if;
 end process FLOW_MACHINE_PROC;
 
@@ -511,18 +509,16 @@ end process;
 --***********************
 --	LINK STATE CONTROL
 
-LINK_STATE_MACHINE_PROC : process(CLK)
+LINK_STATE_MACHINE_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			if (DO_SIMULATION = 0) then
-				link_current_state <= INACTIVE;
-			else
-				link_current_state <= GET_ADDRESS; --ACTIVE;
-			end if;
+	if (RESET = '1') then
+		if (DO_SIMULATION = 0) then
+			link_current_state <= INACTIVE;
 		else
-			link_current_state <= link_next_state;
+			link_current_state <= GET_ADDRESS; --ACTIVE;
 		end if;
+	elsif rising_edge(CLK) then
+		link_current_state <= link_next_state;
 	end if;
 end process;
 
@@ -606,7 +602,7 @@ end process LINK_STATE_MACHINE;
 LINK_OK_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (link_current_state /= TIMEOUT) then
+		if (link_current_state /= TIMEOUT) then
 			link_ok_timeout_ctr <= (others => '0');
 		elsif (link_current_state = TIMEOUT) then
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
@@ -637,7 +633,7 @@ end process LINK_OK_CTR_PROC;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (link_current_state = INACTIVE) then
+		if (link_current_state = INACTIVE) then
 			wait_ctr <= (others => '0');
 		elsif (link_current_state = WAIT_FOR_BOOT) then
 			wait_ctr <= wait_ctr + x"1";
