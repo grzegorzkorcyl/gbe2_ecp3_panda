@@ -111,7 +111,7 @@ debug(63 downto 32) <= (others => '0');
 --debug(31 downto 0)  <= sent_ctr;
 
 
-TransmitStateMachineProc : process (TX_MAC_CLK)
+TransmitStateMachineProc : process (TX_MAC_CLK, RESET)
 begin
 	if RESET = '1' then
 		transmitCurrentState <= T_IDLE;
