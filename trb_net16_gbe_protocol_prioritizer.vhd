@@ -37,12 +37,11 @@ begin
 
 PRIORITIZE : process(CLK, FRAME_TYPE_IN, PROTOCOL_CODE_IN)
 begin
-	
-	if rising_edge(CLK) then
+	if RESET = '1' then
+		CODE_OUT <= (others => '0');
+	elsif rising_edge(CLK) then
 	
 		CODE_OUT <= (others => '0');
-
-		if (RESET = '0') then
 				
 			--**** HERE ADD YOU PROTOCOL RECOGNITION AT WANTED PRIORITY LEVEL
 			-- priority level is the bit position in the CODE_OUT vector
@@ -55,13 +54,16 @@ begin
 						-- No. 2 = DHCP
 						if (UDP_PROTOCOL_IN = x"0044") then  -- DHCP Client
 							CODE_OUT(1) <= '1';
+						-- No. 4 = SCTRL
+						elsif (UDP_PROTOCOL_IN = x"6590") then -- SCTRL module
+							CODE_OUT(2) <= '1';
 						else
 							-- branch for pure IPv4
 							CODE_OUT <= (others => '0');
 						end if;
 					-- No. 3 = ICMP 
 					elsif (PROTOCOL_CODE_IN = x"01") then -- ICMP
-						CODE_OUT(2) <= '1';
+						CODE_OUT(4) <= '1';
 					else
 						CODE_OUT <= (others => '0');
 					end if;
@@ -76,8 +78,6 @@ begin
 			
 			end case;
 			
-		end if;
-		
 	end if;
 
 end process PRIORITIZE;

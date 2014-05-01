@@ -60,7 +60,7 @@ port (
 	DHCP_DONE_OUT		: out	std_logic;
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end trb_net16_gbe_response_constructor_DHCP;
 
@@ -141,7 +141,7 @@ bootp_hdr(23 downto 16) <= x"06";  -- hardware address length
 bootp_hdr(31 downto 24) <= x"00";  -- hops
 bootp_hdr(63 downto 32) <= transaction_id;  -- transaction id;
 bootp_hdr(95 downto 64) <= x"0000_0000";  -- seconds elapsed/flags
-transaction_id <= x"cefa_adde";
+transaction_id <= x"cefa" & g_MY_MAC(47 downto 32);
 vendor_values(31 downto 0)    <= x"63538263"; -- magic cookie (dhcp message)
 vendor_values(55 downto 32)   <= x"010135" when (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER) else x"030135"; -- dhcp discover, then dhcp request
 vendor_values(79 downto 56)   <= x"01073d"; -- client identifier
@@ -175,12 +175,14 @@ end process SAVE_SERVER_ADDR_PROC;
 
 MAIN_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			main_current_state <= BOOTING;
-		else
+	if RESET = '1' then
+		main_current_state <= BOOTING;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			main_current_state <= BOOTING;
+--		else
 			main_current_state <= main_next_state;
-		end if;
+--		end if;
 	end if;
 end process MAIN_MACHINE_PROC;
 
@@ -439,8 +441,10 @@ end process SAVE_VALUES_PROC;
 
 CONSTRUCT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = BOOTING) then
+	if RESET = '1' then
+			construct_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+		if (main_current_state = BOOTING) then
 			construct_current_state <= IDLE;
 		else
 			construct_current_state <= construct_next_state;

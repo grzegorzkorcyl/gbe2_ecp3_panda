@@ -121,12 +121,14 @@ RC_FRAME_PROTO_OUT <= proto_code;  -- no more ones as the incorrect value, last 
 
 LOAD_MACHINE_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      load_current_state <= IDLE;
-    else
+	if RESET = '1' then
+		load_current_state <= IDLE;
+  elsif rising_edge(CLK) then
+--    if (RESET = '1') then
+--      load_current_state <= IDLE;
+--    else
       load_current_state <= load_next_state;
-    end if;
+--    end if;
   end if;
 end process LOAD_MACHINE_PROC;
 
@@ -198,22 +200,26 @@ end process;
 
 FRAMES_REC_CTR_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
+  if (RESET = '1') then
       frames_received_ctr <= (others => '0');
-    elsif (FR_FRAME_VALID_IN = '1') then
-      frames_received_ctr <= frames_received_ctr + x"1";
+  elsif rising_edge(CLK) then
+    if (FR_FRAME_VALID_IN = '1') then
+    	frames_received_ctr <= frames_received_ctr + x"1";
+    else
+    	frames_received_ctr <= frames_received_ctr;
     end if;
   end if;
 end process FRAMES_REC_CTR_PROC;
 
 FRAMES_READOUT_CTR_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
+  if (RESET = '1') then
       frames_readout_ctr <= (others => '0');
-    elsif (RC_LOADING_DONE_IN = '1') then
-      frames_readout_ctr <= frames_readout_ctr + x"1";
+  elsif rising_edge(CLK) then
+    if (RC_LOADING_DONE_IN = '1') then
+    	frames_readout_ctr <= frames_readout_ctr + x"1";
+    else
+    	frames_readout_ctr <= frames_readout_ctr;
     end if;    
   end if;
 end process FRAMES_READOUT_CTR_PROC;
@@ -221,11 +227,13 @@ end process FRAMES_READOUT_CTR_PROC;
 -- debug only
 BYTES_REC_CTR_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
     if (RESET = '1') then
       bytes_rec_ctr <= (others => '0');
-    elsif (FR_FRAME_VALID_IN = '1') then
-      bytes_rec_ctr <= bytes_rec_ctr + FR_FRAME_SIZE_IN;    
+  elsif rising_edge(CLK) then
+    if (FR_FRAME_VALID_IN = '1') then
+    	bytes_rec_ctr <= bytes_rec_ctr + FR_FRAME_SIZE_IN;    
+    else
+    	bytes_rec_ctr <= bytes_rec_ctr;
     end if;
   end if;
 end process BYTES_REC_CTR_PROC;
@@ -233,14 +241,14 @@ end process BYTES_REC_CTR_PROC;
 SAVED_PROTO_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			saved_proto <= (others => '0');
-		elsif (load_current_state = READY) then
+		if (load_current_state = READY) then
 			if (and_all(proto_code) = '0') then
 				saved_proto <= proto_code;
 			else
 				saved_proto <= (others => '0');
 			end if;
+		else
+			saved_proto <= saved_proto;
 		end if;
 	end if;
 end process SAVED_PROTO_PROC;

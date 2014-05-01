@@ -23,10 +23,13 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
+	TRBNET_RESET : in std_logic;
+	RESET_FOR_DHCP : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
+	MC_DHCP_DONE_OUT : out std_logic;
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;
@@ -66,24 +69,58 @@ port (
 -- signals to/from hub
 	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
 	
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
+	GSC_BUSY_IN              : in std_logic;
+	
+	-- signal for data readout
+	-- CTS interface
+	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
+	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
+	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
+	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
+	CTS_START_READOUT_IN		: in	std_logic;
+	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
+	CTS_DATAREADY_OUT			: out	std_logic;
+	CTS_READOUT_FINISHED_OUT	: out	std_logic;
+	CTS_READ_IN					: in	std_logic;
+	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
+	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
+	-- Data payload interface
+	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
+	FEE_DATAREADY_IN			: in	std_logic;
+	FEE_READ_OUT				: out	std_logic;
+	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
+	FEE_BUSY_IN					: in	std_logic;
+	-- ip configurator
+	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
+	SLV_READ_IN                  : in std_logic;
+	SLV_WRITE_IN                 : in std_logic;
+	SLV_BUSY_OUT                 : out std_logic;
+	SLV_ACK_OUT                  : out std_logic;
+	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
+	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	
 	CFG_GBE_ENABLE_IN            : in std_logic;
 	CFG_IPU_ENABLE_IN            : in std_logic;
 	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0); 
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0); 
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
+	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0); 
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
+	CFG_ADDITIONAL_HDR_IN        : in std_logic;
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
-	SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
-	SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
-	SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
-
-	LL_DATA_IN              : in std_logic_vector(31 downto 0);
-	LL_REM_IN               : in std_logic_vector(1 downto 0);
-	LL_SOF_N_IN             : in std_logic;
-	LL_EOF_N_IN             : in std_logic;
-	LL_SRC_READY_N_IN       : in std_logic;
-	LL_DST_READY_N_OUT      : out std_logic;
-	LL_READ_CLK_OUT         : out std_logic;
-
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
 	TSM_HDATA_OUT		: out	std_logic_vector(7 downto 0);
@@ -95,11 +132,15 @@ port (
 	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
 	TSM_RX_STAT_EN_IN   : in	std_logic;
 
-	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	
+	DATA_HIST_OUT : out hist_array;
+	SCTRL_HIST_OUT : out hist_array
 );
 end trb_net16_gbe_main_control;
 
@@ -119,7 +160,7 @@ signal tsm_hcs_n                            : std_logic;
 signal tsm_hwrite_n                         : std_logic;
 signal tsm_hread_n                          : std_logic;
 
-type link_states is (ACTIVE, INACTIVE, ENABLE_MAC, TIMEOUT, FINALIZE, WAIT_FOR_BOOT, GET_ADDRESS);
+type link_states is (INACTIVE, ACTIVE, ENABLE_MAC, TIMEOUT, FINALIZE, WAIT_FOR_BOOT, GET_ADDRESS);
 signal link_current_state, link_next_state : link_states;
 attribute syn_encoding of link_current_state : signal is "onehot";
 
@@ -153,6 +194,11 @@ signal dhcp_done                    : std_logic;
 signal wait_ctr                     : std_logic_vector(31 downto 0);
 
 signal rc_data_local                : std_logic_vector(8 downto 0);
+
+-- debug
+signal frame_waiting_ctr            : std_logic_vector(15 downto 0);
+signal ps_busy_q                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+signal rc_frame_proto_q             : std_Logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 
 type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, WAIT_ONE, FINISH, CLEANUP);
 signal redirect_current_state, redirect_next_state : redirect_states;
@@ -189,10 +235,8 @@ attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state
 attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state, dhcp_done : signal is true;
 
 signal mc_busy                      : std_logic;
-signal zeros                        : std_logic_vector(c_MAX_PROTOCOLS -1 downto 0);
-begin
 
-zeros <= (others => '0');
+begin
 
 unique_id <= MC_UNIQUE_ID_IN;
 
@@ -200,6 +244,8 @@ protocol_selector : trb_net16_gbe_protocol_selector
 port map(
 	CLK			=> CLK,
 	RESET			=> RESET,
+	TRBNET_RESET   => TRBNET_RESET,
+	RESET_FOR_DHCP => RESET_FOR_DHCP,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
 	PS_WR_EN_IN		=> ps_wr_en_qq, --ps_wr_en,
@@ -230,30 +276,59 @@ port map(
 	
 	MC_BUSY_IN      => mc_busy,
 	
-	RECEIVED_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,
-	SENT_FRAMES_OUT		=> SELECT_SENT_FRAMES_OUT,
-	PROTOS_DEBUG_OUT	=> SELECT_PROTOS_DEBUG_OUT,
-	
 	DHCP_START_IN		=> dhcp_start,
 	DHCP_DONE_OUT		=> dhcp_done,
+	
+	GSC_CLK_IN               => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN              => GSC_BUSY_IN,
 		
 	MAKE_RESET_OUT           => MAKE_RESET_OUT,
 	
-	SCTRL_DEST_MAC_IN       => SCTRL_DEST_MAC_IN,
-	SCTRL_DEST_IP_IN        => SCTRL_DEST_IP_IN,
-	SCTRL_DEST_UDP_IN       => SCTRL_DEST_UDP_IN,
-
-	LL_DATA_IN              => LL_DATA_IN,
-	LL_REM_IN               => LL_REM_IN,
-	LL_SOF_N_IN             => LL_SOF_N_IN,
-	LL_EOF_N_IN             => LL_EOF_N_IN,
-	LL_SRC_READY_N_IN       => LL_SRC_READY_N_IN,
-	LL_DST_READY_N_OUT      => LL_DST_READY_N_OUT,
-	LL_READ_CLK_OUT         => LL_READ_CLK_OUT,
+	-- CTS interface
+	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+	CTS_CODE_IN					=> CTS_CODE_IN,
+	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
+	CTS_DATA_OUT				=> CTS_DATA_OUT,
+	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
+	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
+	CTS_READ_IN					=> CTS_READ_IN,
+	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
+	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
+	-- Data payload interface
+	FEE_DATA_IN					=> FEE_DATA_IN,
+	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+	FEE_READ_OUT				=> FEE_READ_OUT,
+	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+	FEE_BUSY_IN					=> FEE_BUSY_IN, 
+	-- ip configurator
+	SLV_ADDR_IN                 => SLV_ADDR_IN,
+	SLV_READ_IN                 => SLV_READ_IN,
+	SLV_WRITE_IN                => SLV_WRITE_IN,
+	SLV_BUSY_OUT                => SLV_BUSY_OUT,
+	SLV_ACK_OUT                 => SLV_ACK_OUT,
+	SLV_DATA_IN                 => SLV_DATA_IN,
+	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
-	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,
-	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,
+	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,        
+	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,        
+	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,       
+	CFG_SUBEVENT_ID_IN			=> CFG_SUBEVENT_ID_IN,		 
+	CFG_SUBEVENT_DEC_IN         => CFG_SUBEVENT_DEC_IN,      
+	CFG_QUEUE_DEC_IN            => CFG_QUEUE_DEC_IN,         
+	CFG_READOUT_CTR_IN          => CFG_READOUT_CTR_IN,       
+	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN,  
+	CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,
+	CFG_INSERT_TTYPE_IN         => CFG_INSERT_TTYPE_IN,
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,
@@ -261,8 +336,14 @@ port map(
 	STAT_DATA_RDY_IN   => stat_rdy,
 	STAT_DATA_ACK_OUT  => stat_ack,
 
+	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT,	
+	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT,  
+	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT, 
+	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT,
+	MONITOR_SELECT_GEN_DBG_OUT    => MONITOR_SELECT_GEN_DBG_OUT,
 	
-	DEBUG_OUT		=> dbg_ps
+	DATA_HIST_OUT => DATA_HIST_OUT,
+	SCTRL_HIST_OUT => SCTRL_HIST_OUT
 );
 
 TC_DATA_OUT <= tc_data;
@@ -301,12 +382,14 @@ end process SYNC_PROC;
 
 REDIRECT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
+	if RESET = '1' then
 			redirect_current_state <= IDLE;
-		else
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			redirect_current_state <= IDLE;
+--		else
 			redirect_current_state <= redirect_next_state;
-		end if;
+--		end if;
 	end if;
 end process REDIRECT_MACHINE_PROC;
 
@@ -342,7 +425,7 @@ begin
 			
 		when CHECK_BUSY =>
 			redirect_state <= x"6";
-			if ((ps_busy and RC_FRAME_PROTO_IN) = zeros) then
+			if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
 				redirect_next_state <= LOAD;
 			else
 				redirect_next_state <= BUSY;
@@ -358,7 +441,7 @@ begin
 		
 		when BUSY =>
 			redirect_state <= x"3";
-			if ((ps_busy and RC_FRAME_PROTO_IN) = zeros) then
+			if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
 				redirect_next_state <= LOAD;
 			else
 				redirect_next_state <= BUSY;
@@ -385,9 +468,7 @@ RC_RD_EN_OUT <= rc_rd_en;
 LOADING_DONE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			RC_LOADING_DONE_OUT <= '0';
-		elsif (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
+		if (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
 			RC_LOADING_DONE_OUT <= '1';
 		else
 			RC_LOADING_DONE_OUT <= '0';
@@ -407,7 +488,7 @@ end process PS_WR_EN_PROC;
 LOADED_BYTES_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (redirect_current_state = IDLE) then
+		if (redirect_current_state = IDLE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (redirect_current_state = LOAD or redirect_current_state = DROP) and (rc_rd_en = '1') then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
@@ -423,9 +504,7 @@ begin
 		first_byte_q  <= first_byte;
 		first_byte_qq <= first_byte_q;
 		
-		if (RESET = '1') then
-			first_byte <= '0';
-		elsif (redirect_current_state = IDLE) then
+		if (redirect_current_state = IDLE) then
 			first_byte <= '1';
 		else
 			first_byte <= '0';
@@ -438,12 +517,14 @@ end process FIRST_BYTE_PROC;
 
 FLOW_MACHINE_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      flow_current_state <= IDLE;
-    else
+	if RESET = '1' then
+			flow_current_state <= IDLE;
+  elsif rising_edge(CLK) then
+--    if (RESET = '1') then
+--      flow_current_state <= IDLE;
+--    else
       flow_current_state <= flow_next_state;
-    end if;
+--    end if;
   end if;
 end process FLOW_MACHINE_PROC;
 
@@ -505,31 +586,26 @@ end process;
 
 LINK_STATE_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			if (g_SIMULATE = 0) then
-				link_current_state <= INACTIVE;
-			else
-				link_current_state <= GET_ADDRESS; --ACTIVE;
-			end if;
-		else
+	if RESET = '1' then
+		link_current_state <= INACTIVE;
+	elsif rising_edge(CLK) then
+--		--if (RESET = '1') then
+--		if (RESET_FOR_DHCP = '1') then
+--			if (g_SIMULATE = 0) then
+--				link_current_state <= INACTIVE;
+--			else
+--				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
+--			end if;
+--		else
 			link_current_state <= link_next_state;
-		end if;
+--		end if;
 	end if;
 end process;
 
 LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, tsm_ready, link_ok_timeout_ctr)
 begin
 	case link_current_state is
-
-		when ACTIVE =>
-			link_state <= x"1";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
-				link_next_state <= ACTIVE;
-			end if;
-
+		
 		when INACTIVE =>
 			link_state <= x"2";
 			if (PCS_AN_COMPLETE_IN = '1') then
@@ -537,7 +613,7 @@ begin
 			else
 				link_next_state <= INACTIVE;
 			end if;
-
+			
 		when TIMEOUT =>
 			link_state <= x"3";
 			if (PCS_AN_COMPLETE_IN = '0') then
@@ -573,7 +649,7 @@ begin
 			if (PCS_AN_COMPLETE_IN = '0') then
 				link_next_state <= INACTIVE;
 			else
-				if (wait_ctr = x"0010_0000") then
+				if (wait_ctr = x"0000_1000") then
 					link_next_state <= GET_ADDRESS;
 				else
 					link_next_state <= WAIT_FOR_BOOT;
@@ -591,14 +667,25 @@ begin
 					link_next_state <= GET_ADDRESS;
 				end if;
 			end if;
+			
+		when ACTIVE =>
+			link_state <= x"1";
+			if (PCS_AN_COMPLETE_IN = '0') then
+				link_next_state <= INACTIVE;
+			else
+				link_next_state <= ACTIVE;
+			end if;
 
 	end case;
 end process LINK_STATE_MACHINE;
 
+MC_DHCP_DONE_OUT <= '1' when link_current_state = ACTIVE else '0';
+
 LINK_OK_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (link_current_state /= TIMEOUT) then
+		--if (RESET = '1') or (link_current_state /= TIMEOUT) then
+		if (link_current_state /= TIMEOUT) then
 			link_ok_timeout_ctr <= (others => '0');
 		elsif (link_current_state = TIMEOUT) then
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
@@ -623,7 +710,8 @@ end process LINK_OK_CTR_PROC;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (link_current_state = INACTIVE) then
+		--if (RESET = '1') or (link_current_state = INACTIVE) then
+		if (link_current_state = INACTIVE) then
 			wait_ctr <= (others => '0');
 		elsif (link_current_state = WAIT_FOR_BOOT) then
 			wait_ctr <= wait_ctr + x"1";
@@ -669,7 +757,7 @@ g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 TSMAC_CONTROLLER : trb_net16_gbe_mac_control
 port map(
 	CLK				=> CLK,
-	RESET			=> RESET,
+	RESET			=> RESET_FOR_DHCP, --RESET,
 
 -- signals to/from main controller
 	MC_TSMAC_READY_OUT	=> tsm_ready,
@@ -844,16 +932,6 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --		end if;
 --	end if;
 --end process SAVE_VALUES_PROC;
---
---
---DEBUG_OUT(3 downto 0)   <= link_state;
---DEBUG_OUT(7 downto 4)   <= state;
---DEBUG_OUT(11 downto 8)  <= redirect_state;
---DEBUG_OUT(15 downto 12) <= link_state;
---DEBUG_OUT(23 downto 16) <= frame_waiting_ctr(7 downto 0);
---DEBUG_OUT(27 downto 24) <= (others => '0'); --ps_busy_q;
---DEBUG_OUT(31 downto 28) <= (others => '0'); --rc_frame_proto_q;
---DEBUG_OUT(63 downto 32) <= dbg_ps(31 downto 0) or dbg_ps(63 downto 32);
 
 
 -- ****
@@ -861,5 +939,3 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 
 
 end trb_net16_gbe_main_control;
-
-

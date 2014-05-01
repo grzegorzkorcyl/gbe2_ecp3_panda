@@ -55,8 +55,7 @@ port (
 	SRC_IP_ADDRESS_OUT   : out    std_logic_vector(31 downto 0);
 	SRC_UDP_PORT_OUT     : out    std_logic_vector(15 downto 0);
 
--- debug
-	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
+	MONITOR_TX_PACKETS_OUT : out std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_transmit_control2;
 
@@ -75,21 +74,24 @@ signal local_end : std_logic_vector(15 downto 0);
 signal actual_frame_bytes, full_packet_size, ip_size, packet_loaded_bytes : std_logic_vector(15 downto 0);
 signal go_to_divide, more_fragments : std_logic;
 signal first_frame : std_logic;
+signal mon_packets_sent_ctr : std_logic_vector(31 downto 0); 
 
 begin
 
 TRANSMIT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			transmit_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		transmit_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			transmit_current_state <= IDLE;
+--		else
 			transmit_current_state <= transmit_next_state;
-		end if;
+--		end if;
 	end if;
 end process TRANSMIT_MACHINE_PROC;
 
-TRANSMIT_MACHINE : process(transmit_current_state, FC_H_READY_IN, TC_DATAREADY_IN, FC_READY_IN, local_end, actual_frame_bytes, go_to_divide)
+TRANSMIT_MACHINE : process(transmit_current_state, FC_H_READY_IN, TC_DATAREADY_IN, FC_READY_IN, local_end, g_MAX_FRAME_SIZE, actual_frame_bytes, go_to_divide)
 begin
 	case transmit_current_state is
 	
@@ -114,7 +116,7 @@ begin
 			if (local_end = x"0000") then
 				transmit_next_state <= SEND_ONE;
 			else
-				if (actual_frame_bytes = x"0578" - x"1") then
+				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
 					transmit_next_state <= SEND_ONE;
 				else
 					transmit_next_state <= TRANSMIT;
@@ -180,7 +182,7 @@ begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE or transmit_current_state = DIVIDE) then
 			go_to_divide <= '0';
-		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = x"0578" - x"1") then
+		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
 			go_to_divide <= '1';
 --		elsif (transmit_current_state = SEND_ONE and full_packet_size < packet_loaded_bytes - x"1") then
 --			go_to_divide <= '1';
@@ -218,8 +220,8 @@ process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = PREPARE_HEADERS) then
-			if (local_end >= x"0578") then
-				ip_size <= x"0578";
+			if (local_end >= g_MAX_FRAME_SIZE) then
+				ip_size <= g_MAX_FRAME_SIZE;
 			else
 				ip_size <= local_end + x"1";
 			end if;
@@ -237,7 +239,7 @@ MORE_FRAGMENTS_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = PREPARE_HEADERS) then
-			if (local_end >= x"0578") then
+			if (local_end >= g_MAX_FRAME_SIZE) then
 				more_fragments <= '1';
 			else
 				more_fragments <= '0';
@@ -289,6 +291,23 @@ SRC_MAC_ADDRESS_OUT  <= TC_SRC_MAC_IN;
 SRC_IP_ADDRESS_OUT   <= TC_SRC_IP_IN;
 SRC_UDP_PORT_OUT     <= TC_SRC_UDP_IN;
 FC_IDENT_OUT         <= TC_IDENT_IN;
+
+-- monitoring
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			mon_packets_sent_ctr <= (others => '0');
+		elsif (transmit_current_state = CLEANUP) then
+			mon_packets_sent_ctr <= mon_packets_sent_ctr + x"1";
+		else
+			mon_packets_sent_ctr <= mon_packets_sent_ctr;
+		end if;
+	end if;
+end process;
+
+MONITOR_TX_PACKETS_OUT <= mon_packets_sent_ctr;
 
 end trb_net16_gbe_transmit_control2;
 

@@ -59,7 +59,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end trb_net16_gbe_response_constructor_Ping;
 
@@ -109,12 +109,14 @@ begin
 
 DISSECT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			dissect_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		dissect_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			dissect_current_state <= IDLE;
+--		else
 			dissect_current_state <= dissect_next_state;
-		end if;
+--		end if;
 	end if;
 end process DISSECT_MACHINE_PROC;
 
@@ -165,8 +167,6 @@ begin
 			data_ctr <= data_ctr + 1;
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then  -- in case of constructing response
 			data_ctr <= data_ctr + 1;
-		else
-			data_ctr <= data_ctr;
 		end if;
 	end if;
 end process DATA_CTR_PROC;
@@ -189,8 +189,6 @@ begin
 			data_length <= 1;
 		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
 			data_length <= data_ctr;
-		else
-			data_length <= data_length;
 		end if;
 	end if;
 end process DATA_LENGTH_PROC;
@@ -252,12 +250,31 @@ begin
 			else
 				checksum_r <= checksum_r + PS_DATA_IN(7 downto 0);
 			end if;
+			checksum_ll  <= checksum_ll;
+			checksum_lll <= checksum_lll;
+			checksum_rr  <= checksum_rr;
+			checksum_rrr <= checksum_rrr;
 		elsif (dissect_current_state = WAIT_FOR_LOAD) then
-				checksum_ll <= x"0000" + checksum_l(7 downto 0) + checksum_r(19 downto 8);
-				checksum_rr <= x"0000" + checksum_r(7 downto 0) + checksum_l(19 downto 8);
+			checksum_ll <= x"0000" + checksum_l(7 downto 0) + checksum_r(19 downto 8);
+			checksum_rr <= x"0000" + checksum_r(7 downto 0) + checksum_l(19 downto 8);
+			checksum_l   <= checksum_l;
+			checksum_lll <= checksum_lll;
+			checksum_r   <= checksum_r;
+			checksum_rrr <= checksum_rrr;
 		elsif (dissect_current_state = LOAD_FRAME and data_ctr = 2) then
-				checksum_lll <= x"0000" + checksum_ll(7 downto 0) + checksum_rr(15 downto 8);
-				checksum_rrr <= x"0000" + checksum_rr(7 downto 0) + checksum_ll(15 downto 8);
+			checksum_lll <= x"0000" + checksum_ll(7 downto 0) + checksum_rr(15 downto 8);
+			checksum_rrr <= x"0000" + checksum_rr(7 downto 0) + checksum_ll(15 downto 8);
+			checksum_l  <= checksum_l;
+			checksum_ll <= checksum_ll;
+			checksum_r  <= checksum_r;
+			checksum_rr <= checksum_rr;
+		else
+			checksum_l   <= checksum_l;
+			checksum_ll  <= checksum_ll;
+			checksum_lll <= checksum_lll;
+			checksum_r   <= checksum_r;
+			checksum_rr  <= checksum_rr;
+			checksum_rrr <= checksum_rrr;
 		end if;
 	end if;
 end process CS_PROC;

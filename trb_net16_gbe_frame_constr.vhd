@@ -45,10 +45,9 @@ port(
 	FT_START_OF_PACKET_OUT  : out   std_logic;
 	FT_TX_DONE_IN           : in    std_logic;
 	FT_TX_DISCFRM_IN	: in	std_logic;
-	-- debug ports
-	BSM_CONSTR_OUT          : out   std_logic_vector(7 downto 0);
-	BSM_TRANS_OUT           : out   std_logic_vector(3 downto 0);
-	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
+	
+	MONITOR_TX_BYTES_OUT    : out std_logic_vector(31 downto 0);
+	MONITOR_TX_FRAMES_OUT   : out std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_frame_constr;
 
@@ -77,7 +76,7 @@ attribute syn_encoding      : string;
 type constructStates    is  (IDLE, DEST_MAC_ADDR, SRC_MAC_ADDR, FRAME_TYPE_S, VERSION,
 							 TOS_S, IP_LENGTH, IDENT, FLAGS, TTL_S, PROTO, HEADER_CS,
 							 SRC_IP_ADDR, DEST_IP_ADDR, SRC_PORT, DEST_PORT, UDP_LENGTH,
-							 UDP_CS, SAVE_DATA, CLEANUP);
+							 UDP_CS, SAVE_DATA, CLEANUP, DELAY);
 signal constructCurrentState, constructNextState : constructStates;
 signal bsm_constr           : std_logic_vector(7 downto 0);
 attribute syn_encoding of constructCurrentState: signal is "onehot";
@@ -120,6 +119,8 @@ signal delay_ctr            : std_logic_vector(31 downto 0);
 signal frame_delay_reg      : std_logic_vector(31 downto 0);
 signal fpf_data_q           : std_logic_vector(7 downto 0);
 signal fpf_wr_en_q, fpf_eod : std_logic;
+
+signal mon_sent_frames, mon_sent_bytes : std_logic_vector(31 downto 0);
 
 begin
 
@@ -164,7 +165,7 @@ end process sizeProc;
 ipCsProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (constructCurrentState = IDLE) then
+		if (constructCurrentState = IDLE) then
 			ip_checksum <= x"00000000";
 		else
 			case constructCurrentState is
@@ -244,12 +245,14 @@ end process ipCsProc;
 
 constructMachineProc: process( CLK )
 begin
-	if( rising_edge(CLK) ) then
-		if( RESET = '1' ) then
-			constructCurrentState <= IDLE;
-		else
+	if RESET = '1' then
+		constructCurrentState <= IDLE;
+	elsif( rising_edge(CLK) ) then
+--		if( RESET = '1' ) then
+--			constructCurrentState <= IDLE;
+--		else
 			constructCurrentState <= constructNextState;
-		end if;
+--		end if;
 	end if;
 end process constructMachineProc;
 
@@ -311,10 +314,36 @@ begin
 					constructNextState <= CLEANUP;
 				end if;
 			when CLEANUP =>
+				--constructNextState <= IDLE;
+				constructNextState <= DELAY; -- gk 10.12.10 IDLE;
+			-- gk 09.12.10
+			when DELAY =>
+				if (delay_ctr = FRAME_DELAY_IN) then
+					constructNextState <= IDLE;
+				else
+					constructNextState <= DELAY;
+				end if;
+
+			when others =>
 				constructNextState <= IDLE;
 		end case;
 	end if;
 end process constructMachine;
+
+-- gk 09.12.10
+delayCtrProc : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (constructCurrentState = IDLE) or (constructCurrentState = CLEANUP) then
+			delay_ctr <= (others => '0');
+		elsif (constructCurrentState = DELAY) then
+			delay_ctr <= delay_ctr + x"1";
+		end if;
+
+		frame_delay_reg <= FRAME_DELAY_IN;
+	end if;
+end process delayCtrProc;
+
 
 bsmConstrProc : process(constructCurrentState)
 begin
@@ -340,6 +369,8 @@ begin
 		when UDP_CS =>          cur_max    <= 1;     bsm_constr <= x"12";
 		when SAVE_DATA =>       cur_max    <= 0;     bsm_constr <= x"13";
 		when CLEANUP =>         cur_max    <= 0;     bsm_constr <= x"14";
+		when DELAY =>           cur_max    <= 0;     bsm_constr <= x"15";
+		when others =>          cur_max    <= 0;     bsm_constr <= x"1f";
 	end case;
 end process;
 
@@ -347,7 +378,7 @@ end process;
 headersIntProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (constructCurrentState = IDLE) then
+		if (constructCurrentState = IDLE) then
 			headers_int_counter <= 0;
 		else
 			if (headers_int_counter = cur_max) then
@@ -364,7 +395,7 @@ end process headersIntProc;
 putUdpHeadersProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (FLAGS_OFFSET_IN(12 downto 0) = "0000000000000") then
+		if (FLAGS_OFFSET_IN(12 downto 0) = "0000000000000") then
 			put_udp_headers <= '1';
 		else
 			put_udp_headers <= '0';
@@ -374,9 +405,9 @@ end process putUdpHeadersProc;
 
 fpfWrEnProc : process(constructCurrentState, WR_EN_IN, RESET, LINK_OK_IN)
 begin
-	if (RESET = '1') or (LINK_OK_IN = '0') then  -- gk 01.10.10
+	if (LINK_OK_IN = '0') then  -- gk 01.10.10
 		fpf_wr_en <= '0';
-	elsif (constructCurrentState /= IDLE) and (constructCurrentState /= CLEANUP) and (constructCurrentState /= SAVE_DATA) then
+	elsif (constructCurrentState /= IDLE) and (constructCurrentState /= CLEANUP) and (constructCurrentState /= SAVE_DATA)  and (constructCurrentState /= DELAY) then
 		fpf_wr_en <= '1';
 	elsif (constructCurrentState = SAVE_DATA) and (WR_EN_IN = '1') then
 		fpf_wr_en <= '1';
@@ -411,6 +442,8 @@ begin
 		when UDP_CS         =>  fpf_data <= udp_checksum(15 - headers_int_counter * 8 downto 8 - headers_int_counter * 8);
 		when SAVE_DATA      =>  fpf_data <= DATA_IN;
 		when CLEANUP        =>  fpf_data <= x"ab";
+		when DELAY          =>  fpf_data <= x"ac";
+		when others         =>  fpf_data <= x"00";
 	end case;
 end process fpfDataProc;
 
@@ -428,10 +461,12 @@ end process syncProc;
 readyFramesCtrProc: process( CLK )
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (LINK_OK_IN = '0') then  -- gk 01.10.10
+		if (LINK_OK_IN = '0') then  -- gk 01.10.10
 			ready_frames_ctr <= (others => '0');
 		elsif (constructCurrentState = CLEANUP) then
 			ready_frames_ctr <= ready_frames_ctr + 1;
+		else
+			ready_frames_ctr <= ready_frames_ctr;
 		end if;
 	end if;
 end process readyFramesCtrProc;
@@ -439,7 +474,7 @@ end process readyFramesCtrProc;
 fpfResetProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or LINK_OK_IN = '0') then
+		if (LINK_OK_IN = '0') then
 			fpf_reset <= '1';
 		else
 			fpf_reset <= '0';
@@ -491,8 +526,10 @@ end process;
 
 transmitMachineProc: process( RD_CLK )
 begin
-	if( rising_edge(RD_CLK) ) then
-		if( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+	if RESET = '1' then
+		transmitCurrentState <= T_IDLE;
+	elsif( rising_edge(RD_CLK) ) then
+		if (link_ok_125 = '0') then  -- gk 01.10.10
 			transmitCurrentState <= T_IDLE;
 		else
 			transmitCurrentState <= transmitNextState;
@@ -543,7 +580,7 @@ end process transmitMachine;
 sopProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+		if (link_ok_125 = '0') then  -- gk 01.10.10
 			ft_sop <= '0';
 		elsif ((transmitCurrentState = T_IDLE) and (sent_frames_ctr /= ready_frames_ctr_q)) then
 			ft_sop <= '1';
@@ -556,35 +593,42 @@ end process sopProc;
 sentFramesCtrProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
+		if (LINK_OK_IN = '0') then  -- gk 01.10.10
 			sent_frames_ctr <= (others => '0');
-		-- gk 03.08.10
+			mon_sent_frames <= (others => '0');
 		elsif( FT_TX_DONE_IN = '1' ) or (FT_TX_DISCFRM_IN = '1') then
 			sent_frames_ctr <= sent_frames_ctr + 1;
+			mon_sent_frames <= mon_sent_frames + x"1";
+		else
+			sent_frames_ctr <= sent_frames_ctr;
+			mon_sent_frames <= mon_sent_frames;
 		end if;
 	end if;
 end process sentFramesCtrProc;
 
-debug(7 downto 0)      <= bsm_constr;
-debug(11 downto 8)     <= bsm_trans;
-debug(27 downto 12)    <= sent_frames_ctr;
-debug(28)              <= fpf_full;
-debug(29)              <= fpf_empty;
-debug(30)              <= ready;
-debug(31)              <= headers_ready;
-debug(47 downto 32)    <= ready_frames_ctr_q;
-debug(48)              <= '0';
 
 
--- Output
 FT_DATA_OUT            <= fpf_q;
 FT_TX_EMPTY_OUT        <= fpf_empty;
 FT_START_OF_PACKET_OUT <= ft_sop;
 READY_OUT              <= ready;
 HEADERS_READY_OUT      <= headers_ready;
 
-BSM_CONSTR_OUT         <= bsm_constr;
-BSM_TRANS_OUT          <= bsm_trans;
-DEBUG_OUT              <= debug;
+	
+MONITOR_TX_BYTES_OUT    <= mon_sent_bytes;
+MONITOR_TX_FRAMES_OUT   <= mon_sent_frames;
+
+process(RD_CLK)
+begin
+	if rising_edge(RD_CLK) then
+		if (LINK_OK_IN = '0') then
+			mon_sent_bytes <= (others => '0');
+		elsif (fpf_rd_en = '1') then
+			mon_sent_bytes <= mon_sent_bytes + x"1";
+		else
+			mon_sent_bytes <= mon_sent_bytes;
+		end if;
+	end if;
+end process;
 
 end trb_net16_gbe_frame_constr;

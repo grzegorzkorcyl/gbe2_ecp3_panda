@@ -54,7 +54,9 @@ port (
 	FR_SRC_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
 	FR_DEST_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
 
-	DEBUG_OUT		: out	std_logic_vector(95 downto 0)
+	MONITOR_RX_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+	MONITOR_RX_FRAMES_OUT : out	std_logic_vector(31 downto 0);
+	MONITOR_DROPPED_OUT   : out	std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_frame_receiver;
 
@@ -100,12 +102,9 @@ signal dump2                                : std_logic_vector(7 downto 0);
 signal error_frames_ctr                     : std_logic_vector(15 downto 0);
 
 -- debug signals
-signal dbg_rec_frames                       : std_logic_vector(15 downto 0);
-signal dbg_ack_frames                       : std_logic_vector(15 downto 0);
-signal dbg_drp_frames                       : std_logic_vector(15 downto 0);
+signal dbg_rec_frames                       : std_logic_vector(31 downto 0);
+signal dbg_drp_frames                       : std_logic_vector(31 downto 0);
 signal state                                : std_logic_vector(3 downto 0);
-signal parsed_frames_ctr                    : std_logic_vector(15 downto 0);
-signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 
 signal rx_data, fr_q                        : std_logic_vector(8 downto 0);
 
@@ -113,6 +112,7 @@ signal fr_src_ip, fr_dest_ip : std_logic_vector(31 downto 0);
 signal fr_dest_udp, fr_src_udp, fr_frame_size, fr_frame_proto : std_logic_vector(15 downto 0);
 signal fr_dest_mac, fr_src_mac : std_logic_vector(47 downto 0);
 signal fr_ip_proto : std_logic_vector(7 downto 0);
+signal mon_rec_bytes : std_logic_vector(31 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -125,7 +125,7 @@ begin
 NEW_FRAME_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (MAC_RX_EOF_IN = '1') then
+		if (LINK_OK_IN = '0' or MAC_RX_EOF_IN = '1') then
 			new_frame <= '0';
 			new_frame_lock <= '0';
 		elsif (new_frame_lock = '0') and (MAC_RX_EN_IN = '1') then
@@ -133,6 +133,7 @@ begin
 			new_frame_lock <= '1';
 		else
 			new_frame <= '0';
+			new_frame_lock <= new_frame_lock;
 		end if;
 	end if;
 end process NEW_FRAME_PROC;
@@ -140,12 +141,14 @@ end process NEW_FRAME_PROC;
 
 FILTER_MACHINE_PROC : process(RX_MAC_CLK)
 begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			filter_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		filter_current_state <= IDLE;
+	elsif rising_edge(RX_MAC_CLK) then
+--		if (RESET = '1') then
+--			filter_current_state <= IDLE;
+--		else
 			filter_current_state <= filter_next_state;
-		end if;
+--		end if;
 	end if;
 end process FILTER_MACHINE_PROC;
 
@@ -279,13 +282,15 @@ end process;
 REMOVE_CTR_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = IDLE) or
+		if (filter_current_state = IDLE) or
 			(filter_current_state = REMOVE_VTYPE and remove_ctr = x"0f") or
 			(filter_current_state = REMOVE_TYPE and remove_ctr = x"0b") then
 			
 			remove_ctr <= (others => '1');
 		elsif (MAC_RX_EN_IN = '1') and (filter_current_state /= IDLE) then --and (filter_current_state /= CLEANUP) then
 			remove_ctr <= remove_ctr + x"1";
+		else
+			remove_ctr <= remove_ctr;
 		end if;
 	end if;
 end process REMOVE_CTR_PROC;
@@ -293,10 +298,12 @@ end process REMOVE_CTR_PROC;
 SAVED_PROTO_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_proto <= (others => '0');
 		elsif (filter_current_state = REMOVE_IP) and (remove_ctr = x"07") then
 			saved_proto <= MAC_RXD_IN;
+		else
+			saved_proto <= saved_proto;
 		end if;
 	end if;
 end process SAVED_PROTO_PROC;
@@ -304,7 +311,7 @@ end process SAVED_PROTO_PROC;
 SAVED_SRC_IP_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_src_ip <= (others => '0');
 		elsif (filter_current_state = REMOVE_IP) and (remove_ctr = x"0a") then
 			saved_src_ip(7 downto 0) <= MAC_RXD_IN;
@@ -314,6 +321,8 @@ begin
 			saved_src_ip(23 downto 16) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_IP) and (remove_ctr = x"0d") then
 			saved_src_ip(31 downto 24) <= MAC_RXD_IN;
+		else
+			saved_src_ip <= saved_src_ip;
 		end if;
 	end if;
 end process SAVED_SRC_IP_PROC;
@@ -321,7 +330,7 @@ end process SAVED_SRC_IP_PROC;
 SAVED_DEST_IP_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_dest_ip <= (others => '0');
 		elsif (filter_current_state = REMOVE_IP) and (remove_ctr = x"0e") then
 			saved_dest_ip(7 downto 0) <= MAC_RXD_IN;
@@ -331,6 +340,8 @@ begin
 			saved_dest_ip(23 downto 16) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_IP) and (remove_ctr = x"11") then
 			saved_dest_ip(31 downto 24) <= MAC_RXD_IN;
+		else
+			saved_dest_ip <= saved_dest_ip;
 		end if;
 	end if;
 end process SAVED_DEST_IP_PROC;
@@ -338,12 +349,14 @@ end process SAVED_DEST_IP_PROC;
 SAVED_SRC_UDP_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_src_udp <= (others => '0');
 		elsif (filter_current_state = REMOVE_UDP) and (remove_ctr = x"12") then
 			saved_src_udp(15 downto 8) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_UDP) and (remove_ctr = x"13") then
 			saved_src_udp(7 downto 0) <= MAC_RXD_IN;
+		else
+			saved_src_udp <= saved_src_udp;
 		end if;
 	end if;
 end process SAVED_SRC_UDP_PROC;
@@ -351,12 +364,14 @@ end process SAVED_SRC_UDP_PROC;
 SAVED_DEST_UDP_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_dest_udp <= (others => '0');
 		elsif (filter_current_state = REMOVE_UDP) and (remove_ctr = x"14") then
 			saved_dest_udp(15 downto 8) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_UDP) and (remove_ctr = x"15") then
 			saved_dest_udp(7 downto 0) <= MAC_RXD_IN;
+		else
+			saved_dest_udp <= saved_dest_udp;
 		end if;
 	end if;
 end process SAVED_DEST_UDP_PROC;
@@ -365,7 +380,7 @@ end process SAVED_DEST_UDP_PROC;
 SAVED_DEST_MAC_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_dest_mac <= (others => '0');
 		elsif (filter_current_state = IDLE) and (MAC_RX_EN_IN = '1') and (new_frame = '0') then
 			saved_dest_mac(7 downto 0) <= MAC_RXD_IN;
@@ -379,6 +394,8 @@ begin
 			saved_dest_mac(39 downto 32) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_DEST) and (remove_ctr = x"02") then
 			saved_dest_mac(47 downto 40) <= MAC_RXD_IN;
+		else
+			saved_dest_mac <= saved_dest_mac;
 		end if;
 	end if;
 end process SAVED_DEST_MAC_PROC;
@@ -387,7 +404,7 @@ end process SAVED_DEST_MAC_PROC;
 SAVED_SRC_MAC_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_src_mac <= (others => '0');
 		elsif (filter_current_state = REMOVE_DEST) and (remove_ctr = x"03") then
 			saved_src_mac(7 downto 0) <= MAC_RXD_IN;
@@ -401,6 +418,8 @@ begin
 			saved_src_mac(39 downto 32) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_SRC) and (remove_ctr = x"08") then
 			saved_src_mac(47 downto 40) <= MAC_RXD_IN;
+		else
+			saved_src_mac <= saved_src_mac;
 		end if;
 	end if;
 end process SAVED_SRC_MAC_PROC;
@@ -409,7 +428,7 @@ end process SAVED_SRC_MAC_PROC;
 SAVED_FRAME_TYPE_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_frame_type <= (others => '0');
 		elsif (filter_current_state = REMOVE_SRC) and (remove_ctr = x"09") then
 			saved_frame_type(15 downto 8) <= MAC_RXD_IN;
@@ -420,6 +439,8 @@ begin
 			saved_frame_type(15 downto 8) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_VTYPE) and (remove_ctr = x"0e") then
 			saved_frame_type(7 downto 0) <= MAC_RXD_IN;
+		else
+			saved_frame_type <= saved_frame_type;
 		end if;
 	end if;
 end process SAVED_FRAME_TYPE_PROC;
@@ -428,12 +449,14 @@ end process SAVED_FRAME_TYPE_PROC;
 SAVED_VID_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (filter_current_state = CLEANUP) then
+		if (filter_current_state = CLEANUP) then
 			saved_vid <= (others => '0');
 		elsif (filter_current_state = REMOVE_TYPE and remove_ctr = x"0b" and saved_frame_type = x"8100") then
 			saved_vid(15 downto 8) <= MAC_RXD_IN;
 		elsif (filter_current_state = REMOVE_VID and remove_ctr = x"0c") then
 			saved_vid(7 downto 0) <= MAC_RXD_IN;
+		else
+			saved_vid <= saved_vid;
 		end if;
 	end if;
 end process SAVED_VID_PROC;
@@ -609,35 +632,12 @@ RX_BYTES_CTR_PROC : process(RX_MAC_CLK)
 begin
   if rising_edge(RX_MAC_CLK) then
     if (RESET = '1') or (delayed_frame_valid_q = '1') then
-    --if (RESET = '1') or (frame_valid_q = '1') then
       rx_bytes_ctr <= x"0001";
     elsif (fifo_wr_en = '1') then
       rx_bytes_ctr <= rx_bytes_ctr + x"1";
     end if;
   end if;
 end process;
-
-PARSED_FRAMES_CTR_PROC : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			parsed_frames_ctr <= (others => '0');
-		elsif (filter_current_state = IDLE and new_frame = '1' and ALLOW_RX_IN = '1') then
-			parsed_frames_ctr <= parsed_frames_ctr + x"1";
-		end if;
-	end if;
-end process PARSED_FRAMES_CTR_PROC;
-
-FRAMEOK_FRAMES_CTR_PROC : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			ok_frames_ctr <= (others => '0');
-		elsif (MAC_RX_STAT_EN_IN = '1' and MAC_RX_STAT_VEC_IN(23) = '1') then
-			ok_frames_ctr <= ok_frames_ctr + x"1";
-		end if;
-	end if;
-end process FRAMEOK_FRAMES_CTR_PROC;
 
 ERROR_FRAMES_CTR_PROC : process(RX_MAC_CLK)
 begin
@@ -685,17 +685,6 @@ begin
 	end if;
 end process RECEIVED_FRAMES_CTR;
 
-ACK_FRAMES_CTR : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			dbg_ack_frames <= (others => '0');
-		elsif (filter_current_state = DECIDE and frame_type_valid = '1') then
-			dbg_ack_frames <= dbg_ack_frames + x"1";
-		end if;
-	end if;
-end process ACK_FRAMES_CTR;
-
 DROPPED_FRAMES_CTR : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
@@ -709,7 +698,7 @@ end process DROPPED_FRAMES_CTR;
 
 sync1 : signal_sync
 generic map (
-	WIDTH => 16,
+	WIDTH => 32,
 	DEPTH => 2
 )
 port map (
@@ -717,73 +706,47 @@ port map (
 	CLK0  => CLK,
 	CLK1  => CLK,
 	D_IN  => dbg_drp_frames,
-	D_OUT => DEBUG_OUT(63 downto 48)
-);
-
-sync2 : signal_sync
-generic map (
-	WIDTH => 16,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => dbg_ack_frames,
-	D_OUT => DEBUG_OUT(47 downto 32)
+	D_OUT => MONITOR_DROPPED_OUT
 );
 
 sync3 : signal_sync
 generic map (
-	WIDTH => 12,
+	WIDTH => 32,
 	DEPTH => 2
 )
 port map (
 	RESET => RESET,
 	CLK0  => CLK,
 	CLK1  => CLK,
-	D_IN  => dbg_rec_frames(11 downto 0),
-	D_OUT => DEBUG_OUT(19 downto 8)
+	D_IN  => dbg_rec_frames,
+	D_OUT => MONITOR_RX_FRAMES_OUT
 );
 
 sync4 : signal_sync
 generic map (
-	WIDTH => 12,
+	WIDTH => 32,
 	DEPTH => 2
 )
 port map (
 	RESET => RESET,
 	CLK0  => CLK,
 	CLK1  => CLK,
-	D_IN  => parsed_frames_ctr(11 downto 0),
-	D_OUT => DEBUG_OUT(31 downto 20)
+	D_IN  => mon_rec_bytes,
+	D_OUT => MONITOR_RX_BYTES_OUT
 );
 
-sync5 : signal_sync
-generic map (
-	WIDTH => 16,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => error_frames_ctr,
-	D_OUT => DEBUG_OUT(79 downto 64)
-);
-
-sync6 : signal_sync
-generic map (
-	WIDTH => 16,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => ok_frames_ctr,
-	D_OUT => DEBUG_OUT(95 downto 80)
-);
+process(RX_MAC_CLK)
+begin
+	if rising_edge(RX_MAC_CLK) then
+		if (RESET = '1') then
+			mon_rec_bytes <= (others => '0');
+		elsif (fifo_wr_en = '1') then
+			mon_rec_bytes <= mon_rec_bytes + x"1";
+		else
+			mon_rec_bytes <= mon_rec_bytes;		
+		end if;
+	end if;
+end process;
 
 -- end of debug counters
 -- ****
