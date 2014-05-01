@@ -102,7 +102,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 	-- end of protocol specific ports
 	
 	-- debug
-		DEBUG_OUT		         : out	std_logic_vector(31 downto 0)
+		DEBUG_OUT		         : out	std_logic_vector(63 downto 0)
 	);
 end component;
 
