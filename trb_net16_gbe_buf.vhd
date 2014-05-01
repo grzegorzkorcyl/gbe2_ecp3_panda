@@ -296,6 +296,9 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 MAIN_CONTROL : trb_net16_gbe_main_control
+generic map (
+	DO_SIMULATION => DO_SIMULATION
+)
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,

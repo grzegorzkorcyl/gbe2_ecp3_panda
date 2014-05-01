@@ -319,6 +319,9 @@ port (
 end component;
 
 component trb_net16_gbe_main_control is
+generic (
+	DO_SIMULATION : integer range 0 to 1
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;

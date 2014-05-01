@@ -19,6 +19,9 @@ use work.trb_net_gbe_protocols.all;
 
 
 entity trb_net16_gbe_main_control is
+generic (
+	DO_SIMULATION : integer range 0 to 1
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
@@ -507,7 +510,7 @@ LINK_STATE_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
-			if (g_SIMULATE = 0) then
+			if (DO_SIMULATION = 0) then
 				link_current_state <= INACTIVE;
 			else
 				link_current_state <= GET_ADDRESS; --ACTIVE;
