@@ -63,7 +63,7 @@ architecture trb_net16_gbe_buf of trb_net16_gbe_buf is
 --attribute HGROUP of trb_net16_gbe_buf : architecture is "GBE_BUF_group";
 
 
-component tsmac35 --tsmac36 --tsmac35
+component tsmac36 --tsmac35
 port(
 	--------------- clock and reset port declarations ------------------
 	hclk					: in	std_logic;
@@ -589,7 +589,7 @@ port map(
 
 imp_gen : if (USE_125MHZ_EXTCLK = 0) generate	
 	-- MAC part
-	MAC: tsmac35 --tsmac36 --tsmac35
+	MAC: tsmac36 --tsmac35
 	port map(
 	----------------- clock and reset port declarations ------------------
 		hclk				=> CLK,
