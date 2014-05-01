@@ -235,7 +235,7 @@ signal rc_frame_proto                : std_logic_vector(c_MAX_PROTOCOLS - 1 down
 
 signal dbg_select_rec                : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 signal dbg_select_sent               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-signal dbg_select_protos             : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_protos             : std_logic_vector(c_MAX_PROTOCOLS * 64 - 1 downto 0);
 	
 signal serdes_rx_clk                 : std_logic;
 
