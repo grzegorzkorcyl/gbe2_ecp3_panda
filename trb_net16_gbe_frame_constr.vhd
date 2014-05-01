@@ -131,7 +131,7 @@ udp_checksum  <= x"0000";  -- no checksum test needed
 process(CLK)
 begin
 	if rising_edge(CLK) then
-		if constructCurrentState = IDLE then
+		if constructCurrentState = IDLE and fpf_empty = '1' then
 			ready <= '1';
 		else
 			ready <= '0';
@@ -243,7 +243,7 @@ begin
 end process ipCsProc;
 
 
-constructMachineProc: process( CLK )
+constructMachineProc: process(RESET, CLK )
 begin
 	if RESET = '1' then
 		constructCurrentState <= IDLE;
@@ -379,7 +379,7 @@ begin
 	end if;
 end process putUdpHeadersProc;
 
-fpfWrEnProc : process(constructCurrentState, WR_EN_IN, RESET, LINK_OK_IN)
+fpfWrEnProc : process(constructCurrentState, WR_EN_IN, LINK_OK_IN)
 begin
 	if (LINK_OK_IN = '0') then  -- gk 01.10.10
 		fpf_wr_en <= '0';
@@ -499,7 +499,7 @@ begin
 	end if;
 end process;
 
-transmitMachineProc: process( RD_CLK )
+transmitMachineProc: process( RESET, RD_CLK )
 begin
 	if RESET = '1' then
 		transmitCurrentState <= T_IDLE;
