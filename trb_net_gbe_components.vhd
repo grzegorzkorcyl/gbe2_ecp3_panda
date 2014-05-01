@@ -153,56 +153,9 @@ port(
 	CLK_125_IN				: in std_logic;  -- gk 28.04.01 used only in internal 125MHz clock mode
 	RESET						: in	std_logic;
 	GSR_N						: in	std_logic;
-	-- Debug
-	STAGE_STAT_REGS_OUT			: out	std_logic_vector(31 downto 0);
-	STAGE_CTRL_REGS_IN			: in	std_logic_vector(31 downto 0);
-	-- configuration interface
-	IP_CFG_START_IN				: in 	std_logic;
-	IP_CFG_BANK_SEL_IN			: in	std_logic_vector(3 downto 0);
-	IP_CFG_DONE_OUT				: out	std_logic;
-	IP_CFG_MEM_ADDR_OUT			: out	std_logic_vector(7 downto 0);
-	IP_CFG_MEM_DATA_IN			: in	std_logic_vector(31 downto 0);
-	IP_CFG_MEM_CLK_OUT			: out	std_logic;
-	MR_RESET_IN					: in	std_logic;
-	MR_MODE_IN					: in	std_logic;
-	MR_RESTART_IN				: in	std_logic;
-	-- gk 29.03.10
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
-	-- gk 22.04.10
-	-- registers setup interface
-	BUS_ADDR_IN               : in std_logic_vector(7 downto 0);
-	BUS_DATA_IN               : in std_logic_vector(31 downto 0);
-	BUS_DATA_OUT              : out std_logic_vector(31 downto 0);  -- gk 26.04.10
-	BUS_WRITE_EN_IN           : in std_logic;  -- gk 26.04.10
-	BUS_READ_EN_IN            : in std_logic;  -- gk 26.04.10
-	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
 	-- gk 23.04.10
 	LED_PACKET_SENT_OUT          : out std_logic;
 	LED_AN_DONE_N_OUT            : out std_logic;
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
 	--SFP Connection
 	SFP_RXD_P_IN				: in	std_logic;
 	SFP_RXD_N_IN				: in	std_logic;
@@ -214,29 +167,20 @@ port(
 	SFP_LOS_IN					: in	std_logic; -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
 	
-	-- interface between main_controller and hub logic
-	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0);		
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
+	SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
+	SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
+	SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
+
+	LL_DATA_IN              : in std_logic_vector(31 downto 0);
+	LL_REM_IN               : in std_logic_vector(1 downto 0);
+	LL_SOF_N_IN             : in std_logic;
+	LL_EOF_N_IN             : in std_logic;
+	LL_SRC_READY_N_IN       : in std_logic;
+	LL_DST_READY_N_OUT      : out std_logic;
+	LL_READ_CLK_OUT         : out std_logic;
 	
-	MAKE_RESET_OUT           : out std_logic;
-
-	-- for simulation of receiving part only
-	MAC_RX_EOF_IN		: in	std_logic;
-	MAC_RXD_IN		: in	std_logic_vector(7 downto 0);
-	MAC_RX_EN_IN		: in	std_logic;
-
-
-	-- debug ports
-	ANALYZER_DEBUG_OUT			: out	std_logic_vector(63 downto 0)
+	-- interface between main_controller and hub logic
+	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -279,8 +223,6 @@ component trb_net16_gbe_protocol_selector is
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
-	TRBNET_RESET : in std_logic;
-	RESET_FOR_DHCP : in std_logic;
 
 -- signals to/from main controller
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0); 
@@ -297,7 +239,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	
--- singals to/from transmi controller with constructed response
+-- singals to/from transmit controller with constructed response
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_RD_EN_IN		: in	std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
@@ -310,78 +252,43 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	MC_BUSY_IN          : in	std_logic;
+	
+	MC_BUSY_IN      : in	std_logic;
+	
+	-- counters from response constructors
+	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+	SENT_FRAMES_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
-		
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
-	-- signal for data readout
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	-- ip configurator
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	CFG_GBE_ENABLE_IN            : in std_logic;
+	CFG_IPU_ENABLE_IN            : in std_logic;
+	CFG_MULT_ENABLE_IN           : in std_logic;
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;                      
-	CFG_IPU_ENABLE_IN            : in std_logic;                      
-	CFG_MULT_ENABLE_IN           : in std_logic;                      
-	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);  
-	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);  
-	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);  
-	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);  
-	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
-	CFG_ADDITIONAL_HDR_IN        : in std_logic;
-	CFG_INSERT_TTYPE_IN          : in std_logic;
+	SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
+	SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
+	SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
 	
+	LL_DATA_IN              : in std_logic_vector(31 downto 0);
+	LL_REM_IN               : in std_logic_vector(1 downto 0);
+	LL_SOF_N_IN             : in std_logic;
+	LL_EOF_N_IN             : in std_logic;
+	LL_SRC_READY_N_IN       : in std_logic;
+	LL_DST_READY_N_OUT      : out std_logic;
+	LL_READ_CLK_OUT         : out std_logic;
+
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
 	STAT_ADDR_IN             : in std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_IN         : in std_logic;
 	STAT_DATA_ACK_OUT        : out std_logic;
-	
-	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
-	DATA_HIST_OUT : out hist_array;
-	SCTRL_HIST_OUT : out hist_array 	
+
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -416,13 +323,10 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
-	TRBNET_RESET : in std_logic;
-	RESET_FOR_DHCP : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
-	MC_DHCP_DONE_OUT : out std_logic;
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;
@@ -431,7 +335,7 @@ port (
 	RC_RD_EN_OUT		: out	std_logic;
 	RC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
 	RC_FRAME_PROTO_IN	: in	std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-	
+
 	RC_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
 	RC_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
 	RC_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
@@ -451,6 +355,7 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
@@ -461,58 +366,24 @@ port (
 -- signals to/from hub
 	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
 	
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
-	-- signal for data readout
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	-- ip configurator
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
-	
 	CFG_GBE_ENABLE_IN            : in std_logic;
 	CFG_IPU_ENABLE_IN            : in std_logic;
 	CFG_MULT_ENABLE_IN           : in std_logic;
-	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0); 
-	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0); 
-	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
-	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0); 
-	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
-	CFG_ADDITIONAL_HDR_IN        : in std_logic;
-	CFG_INSERT_TTYPE_IN          : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
+	SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
+	SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
+	SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
+
+	LL_DATA_IN              : in std_logic_vector(31 downto 0);
+	LL_REM_IN               : in std_logic_vector(1 downto 0);
+	LL_SOF_N_IN             : in std_logic;
+	LL_EOF_N_IN             : in std_logic;
+	LL_SRC_READY_N_IN       : in std_logic;
+	LL_DST_READY_N_OUT      : out std_logic;
+	LL_READ_CLK_OUT         : out std_logic;
+
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
 	TSM_HDATA_OUT		: out	std_logic_vector(7 downto 0);
@@ -524,15 +395,11 @@ port (
 	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
 	TSM_RX_STAT_EN_IN   : in	std_logic;
 
+	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+	SELECT_PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
-	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
-	DATA_HIST_OUT : out hist_array;
-	SCTRL_HIST_OUT : out hist_array
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 

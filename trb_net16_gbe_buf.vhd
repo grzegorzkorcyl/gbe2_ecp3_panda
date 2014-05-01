@@ -423,7 +423,7 @@ port map(
 	SRC_UDP_PORT_OUT        => fc_src_udp,
 
 -- debug
-	DEBUG_OUT		=> dbg_tc
+	MONITOR_TX_PACKETS_OUT		=> open
 );
 
 -- Third stage: Frame Constructor
@@ -466,10 +466,8 @@ port map(
 	FT_TX_DONE_IN			=> mac_tx_done,
 	FT_TX_DISCFRM_IN		=> mac_tx_discfrm,
 	-- debug ports
-	BSM_CONSTR_OUT			=> fc_bsm_constr,
-	BSM_TRANS_OUT			=> fc_bsm_trans,
-	DEBUG_OUT(31 downto 0)		=> dbg_fc1,
-	DEBUG_OUT(63 downto 32)         => dbg_fc2
+	MONITOR_TX_BYTES_OUT    => open,
+	MONITOR_TX_FRAMES_OUT   => open
 );
 
 
@@ -584,7 +582,9 @@ port map(
 	FR_SRC_UDP_PORT_OUT	=> fr_src_udp,
 	FR_DEST_UDP_PORT_OUT	=> fr_dest_udp,
 
-	  DEBUG_OUT		=> dbg_fr
+	MONITOR_RX_BYTES_OUT  => open,
+	MONITOR_RX_FRAMES_OUT => open,
+	MONITOR_DROPPED_OUT   => open
   );	
 
 imp_gen : if (USE_125MHZ_EXTCLK = 0) generate	
