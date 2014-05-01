@@ -7,6 +7,8 @@ use work.trb_net_std.all;
 
 package trb_net_gbe_protocols is
 
+type hist_array is array(31 downto 0) of std_logic_vector(31 downto 0);
+
 signal g_SIMULATE             : integer range 0 to 1 := 0;
 
 -- g_MY_IP is being set by DHCP Response Constructor
@@ -15,12 +17,12 @@ signal g_MY_IP                : std_logic_vector(31 downto 0);
 signal g_MY_MAC               : std_logic_vector(47 downto 0);
 
 -- size of ethernet frame use for fragmentation of outgoing packets
-signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0578"; -- set up in main controller
+signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0578"; --x"0200"; -- set up in main controller
 
 --signal g_MAX_PACKET_SIZE    : std_logic_vector(15 downto 0);
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
-constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 3; --5; --4; --5;
+constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 5; --5; --4; --5;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
 constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 4;
 
@@ -74,7 +76,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -122,7 +124,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -163,7 +165,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -215,7 +217,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -265,7 +267,7 @@ port (
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -313,7 +315,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -361,7 +363,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -403,7 +405,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -446,8 +448,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		STAT_DATA_RDY_OUT : out std_logic;
 		STAT_DATA_ACK_IN  : in std_logic;
 		
-		RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
-		SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
+		DEBUG_OUT		: out	std_logic_vector(63 downto 0);
 	-- END OF INTERFACE
 	
 	-- protocol specific ports
@@ -462,10 +463,15 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_READ_OUT       : out std_logic;
 		GSC_BUSY_IN              : in std_logic;
 		MAKE_RESET_OUT           : out std_logic;
+		CFG_ADDITIONAL_HDR_IN    : in std_logic;
 	-- end of protocol specific ports
-	
-	-- debug
-		DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+
+		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
+		MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+		MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
+		MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+		
+		DATA_HIST_OUT : out hist_array 
 	);
 end component;
 
@@ -522,7 +528,7 @@ port (
 	STAT_DATA_ACK_OUT : out std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -530,6 +536,7 @@ component trb_net16_gbe_response_constructor_TrbNetData is
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
+	TRBNET_RESET : in std_logic;
 	
 -- INTERFACE	
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
@@ -562,9 +569,12 @@ port (
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_OUT : out std_logic;
 	STAT_DATA_ACK_IN  : in std_logic;
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
+	
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0);
+	
 -- END OF INTERFACE
+
+	TRANSMITTER_BUSY_IN         : in    std_logic;
 
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
@@ -593,80 +603,23 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_GBE_ENABLE_IN            : in std_logic;                    
+	CFG_IPU_ENABLE_IN            : in std_logic;                    
+	CFG_MULT_ENABLE_IN           : in std_logic;                    
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
+	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 
--- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+	
+	DATA_HIST_OUT : out hist_array 
 );
-end component;
-
-component trb_net16_gbe_response_constructor_DataTX is
-generic ( STAT_ADDRESS_BASE : integer := 0
-);
-	port (
-		CLK			            : in	std_logic;  -- system clock
-		RESET			            : in	std_logic;
-		
-	-- INTERFACE	
-		PS_DATA_IN		         : in	std_logic_vector(8 downto 0);
-		PS_WR_EN_IN		         : in	std_logic;
-		PS_ACTIVATE_IN	      	: in	std_logic;
-		PS_RESPONSE_READY_OUT	: out	std_logic;
-		PS_BUSY_OUT		         : out	std_logic;
-		PS_SELECTED_IN		      : in	std_logic;
-		PS_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
-		PS_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
-		PS_SRC_IP_ADDRESS_IN	   : in	std_logic_vector(31 downto 0);
-		PS_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-		PS_SRC_UDP_PORT_IN	   : in	std_logic_vector(15 downto 0);
-		PS_DEST_UDP_PORT_IN	   : in	std_logic_vector(15 downto 0);
-		
-		PS_MY_MAC_IN            : in std_logic_vector(47 downto 0);
-		PS_MY_IP_IN             : in std_logic_vector(31 downto 0);
-			
-		TC_RD_EN_IN		         : in	std_logic;
-		TC_DATA_OUT		         : out	std_logic_vector(8 downto 0);
-		TC_FRAME_SIZE_OUT	      : out	std_logic_vector(15 downto 0);
-		TC_FRAME_TYPE_OUT	      : out	std_logic_vector(15 downto 0);
-		TC_IP_PROTOCOL_OUT	   : out	std_logic_vector(7 downto 0);	
-		TC_DEST_MAC_OUT		   : out	std_logic_vector(47 downto 0);
-		TC_DEST_IP_OUT		      : out	std_logic_vector(31 downto 0);
-		TC_DEST_UDP_OUT		   : out	std_logic_vector(15 downto 0);
-		TC_SRC_MAC_OUT		      : out	std_logic_vector(47 downto 0);
-		TC_SRC_IP_OUT		      : out	std_logic_vector(31 downto 0);
-		TC_SRC_UDP_OUT		      : out	std_logic_vector(15 downto 0);
-		TC_IDENT_OUT		      : out	std_logic_vector(15 downto 0);
- 
-		STAT_DATA_OUT           : out std_logic_vector(31 downto 0);
-		STAT_ADDR_OUT           : out std_logic_vector(7 downto 0);
-		STAT_DATA_RDY_OUT       : out std_logic;
-		STAT_DATA_ACK_IN        : in std_logic;
-		
-		RECEIVED_FRAMES_OUT   	: out	std_logic_vector(15 downto 0);
-		SENT_FRAMES_OUT	   	: out	std_logic_vector(15 downto 0);
-	-- END OF INTERFACE
-	
-	-- protocol specific ports
-		UDP_CHECKSUM_OUT        : out std_logic_vector(15 downto 0);
-			
-		SCTRL_DEST_MAC_IN       : in std_logic_vector(47 downto 0);
-		SCTRL_DEST_IP_IN        : in std_logic_vector(31 downto 0);
-		SCTRL_DEST_UDP_IN       : in std_logic_vector(15 downto 0);
-	
-		LL_DATA_IN              : in std_logic_vector(31 downto 0);
-		LL_REM_IN               : in std_logic_vector(1 downto 0);
-		LL_SOF_N_IN             : in std_logic;
-		LL_EOF_N_IN             : in std_logic;
-		LL_SRC_READY_N_IN       : in std_logic;
-		LL_DST_READY_N_OUT      : out std_logic;
-		LL_READ_CLK_OUT         : out std_logic;		
-	-- end of protocol specific ports
-	
-	-- debug
-		DEBUG_OUT		         : out	std_logic_vector(31 downto 0)
-	);
 end component;
 
 end package;
