@@ -152,13 +152,13 @@ end process;
 sizeProc: process(CLK) -- put_udp_headers, IP_F_SIZE_IN, UDP_P_SIZE_IN, DEST_UDP_PORT_IN)
 begin
 	if rising_edge(CLK) then
-		if( put_udp_headers = '1' ) and (DEST_UDP_PORT_IN /= x"0000") then
+		--if( put_udp_headers = '1' ) and (DEST_UDP_PORT_IN /= x"0000") then
 			ip_size  <= IP_F_SIZE_IN + x"14" + x"8";
 			udp_size <= UDP_P_SIZE_IN + x"8";
-		else
-			ip_size  <= IP_F_SIZE_IN + x"14";
-			udp_size <= UDP_P_SIZE_IN;
-		end if;
+--		else
+--			ip_size  <= IP_F_SIZE_IN + x"14";
+--			udp_size <= UDP_P_SIZE_IN;
+--		end if;
 	end if;
 end process sizeProc;
 
