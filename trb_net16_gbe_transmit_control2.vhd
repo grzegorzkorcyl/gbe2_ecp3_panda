@@ -230,8 +230,8 @@ begin
 		end if;
 	end if;
 end process;
-FC_IP_SIZE_OUT      <= x"bbaa"; --ip_size; 
-FC_UDP_SIZE_OUT		<= x"bbaa"; --full_packet_size; --TC_FRAME_SIZE_IN;
+FC_IP_SIZE_OUT      <= ip_size; 
+FC_UDP_SIZE_OUT		<= full_packet_size; --TC_FRAME_SIZE_IN;
 
 FC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
 FC_FLAGS_OFFSET_OUT(13) <= more_fragments;
