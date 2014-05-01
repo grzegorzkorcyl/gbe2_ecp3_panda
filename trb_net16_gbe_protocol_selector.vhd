@@ -56,7 +56,7 @@ port (
 	-- counters from response constructors
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 	SENT_FRAMES_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 63 - 1 downto 0);
 	
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
@@ -190,7 +190,7 @@ port map (
 	STAT_DATA_ACK_IN  		=> stat_ack(0),
 	RECEIVED_FRAMES_OUT		=> RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
 	SENT_FRAMES_OUT			=> SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
-	DEBUG_OUT				=> PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT				=> PROTOS_DEBUG_OUT(1 * 64 - 1 downto 0 * 64)
 -- END OF INTERFACE 
 );
 
@@ -242,7 +242,7 @@ port map (
 	DHCP_START_IN		    => DHCP_START_IN,
 	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
 	 
-	DEBUG_OUT		        => PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT		        => PROTOS_DEBUG_OUT(1 * 64 - 1 downto 0 * 64)
  );
 
 -- protocol No. 3 Ping
@@ -336,7 +336,7 @@ DataTX : trb_net16_gbe_response_constructor_DataTX
 		STAT_DATA_ACK_IN        => stat_ack(2),
 		RECEIVED_FRAMES_OUT  	=> RECEIVED_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
 		SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
-		DEBUG_OUT		        => PROTOS_DEBUG_OUT(3 * 32 - 1 downto 2 * 32),
+		DEBUG_OUT		        => PROTOS_DEBUG_OUT(3 * 64 - 1 downto 2 * 64),
  
 	-- END OF INTERFACE
 	
