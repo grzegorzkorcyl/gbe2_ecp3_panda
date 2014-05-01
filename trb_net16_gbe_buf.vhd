@@ -22,6 +22,7 @@ port(
 	CLK							: in	std_logic;
 	TEST_CLK					: in	std_logic; -- only for simulation!
 	CLK_125_IN				: in std_logic;  -- gk 28.04.01 used only in internal 125MHz clock mode
+	GBE_READY_OUT               : out std_logic;
 	RESET						: in	std_logic;
 	GSR_N						: in	std_logic;
 	-- gk 23.04.10
@@ -305,6 +306,7 @@ generic map (
 	  RESET			=> RESET,
 
 	  MC_LINK_OK_OUT	=> link_ok,
+	  MC_OPERATIONAL_OUT => GBE_READY_OUT,
 	  MC_RESET_LINK_IN	=> '0',
 	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
 

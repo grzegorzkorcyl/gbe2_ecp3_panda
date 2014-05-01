@@ -151,6 +151,7 @@ port(
 	CLK							: in	std_logic;
 	TEST_CLK					: in	std_logic; -- only for simulation!
 	CLK_125_IN				: in std_logic;  -- gk 28.04.01 used only in internal 125MHz clock mode
+	GBE_READY_OUT               : out std_logic;
 	RESET						: in	std_logic;
 	GSR_N						: in	std_logic;
 	-- gk 23.04.10
@@ -328,6 +329,7 @@ port (
 	RESET			: in	std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
+	MC_OPERATIONAL_OUT : out std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
 

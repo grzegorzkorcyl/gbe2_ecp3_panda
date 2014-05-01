@@ -28,6 +28,7 @@ port (
 	RESET			: in	std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
+	MC_OPERATIONAL_OUT : out std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
 
@@ -193,16 +194,20 @@ attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_s
 
 signal mc_busy                      : std_logic;
 signal zeros                        : std_logic_vector(c_MAX_PROTOCOLS -1 downto 0);
+signal reset_protocols              : std_logic;
+
 begin
 
 zeros <= (others => '0');
 
 unique_id <= MC_UNIQUE_ID_IN;
 
+reset_protocols <= '0' when link_current_state = ACTIVE else RESET;
+
 protocol_selector : trb_net16_gbe_protocol_selector
 port map(
 	CLK			=> CLK,
-	RESET			=> RESET,
+	RESET			=> reset_protocols, --RESET,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
 	PS_WR_EN_IN		=> ps_wr_en_qq, --ps_wr_en,
@@ -313,7 +318,7 @@ begin
 	end if;
 end process REDIRECT_MACHINE_PROC;
 
-REDIRECT_MACHINE : process(redirect_current_state, link_current_state, RC_FRAME_WAITING_IN, RC_DATA_IN, ps_busy, RC_FRAME_PROTO_IN, ps_wr_en, loaded_bytes_ctr, RC_FRAME_SIZE_IN)
+REDIRECT_MACHINE : process(redirect_current_state, zeros, link_current_state, RC_FRAME_WAITING_IN, ps_busy, RC_FRAME_PROTO_IN, loaded_bytes_ctr, RC_FRAME_SIZE_IN)
 begin
 	case redirect_current_state is
 	
@@ -611,6 +616,12 @@ begin
 			link_ok <= '1';
 		else
 			link_ok <= '0';
+		end if;
+		
+		if (link_current_state = ACTIVE) then
+			MC_OPERATIONAL_OUT <= '1';
+		else
+			MC_OPERATIONAL_OUT <= '0';
 		end if;
 		
 		if (link_current_state = GET_ADDRESS) then
