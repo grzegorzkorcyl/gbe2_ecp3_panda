@@ -40,10 +40,12 @@ begin
 
 
 imp_gen : if (DO_SIMULATION = 0) generate
-	DATA_STOP_VAL_PROC : process(LL_READ_CLK_IN)
+	DATA_STOP_VAL_PROC : process(reset, LL_READ_CLK_IN)
 	begin
-		if rising_edge(LL_READ_CLK_IN) then
-			if (reset = '1') or (data_stop_val = x"0000_3a00") then
+		if (reset = '1') then
+				data_stop_val <= x"0000_0001";
+		elsif rising_edge(LL_READ_CLK_IN) then
+			if (data_stop_val = x"0000_3a00") then
 				data_stop_val <= x"0000_0001";
 			elsif (link_current_state = CLEANUP) then
 				data_stop_val <= data_stop_val + x"1";
@@ -73,14 +75,12 @@ end generate sim_gen;
 
 reset <= not RESET_N;
 
-LINK_MACHINE_PROC : process(LL_READ_CLK_IN)
+LINK_MACHINE_PROC : process(reset, LL_READ_CLK_IN)
 begin
-	if rising_edge(LL_READ_CLK_IN) then
-		if (reset = '1') then
-			link_current_state <= IDLE;
-		else
-			link_current_state <= link_next_state;
-		end if;
+	if (reset = '1') then
+		link_current_state <= IDLE;
+	elsif rising_edge(LL_READ_CLK_IN) then
+		link_current_state <= link_next_state;
 	end if;
 end process LINK_MACHINE_PROC;
 
@@ -123,7 +123,7 @@ end process LINK_MACHINE;
 TIMEOUT_CTR_PROC : process(LL_READ_CLK_IN)
 begin
 	if rising_edge(LL_READ_CLK_IN) then
-		if (reset = '1' or link_current_state = IDLE) then
+		if (link_current_state = IDLE) then
 			timeout_ctr <= (others => '0');
 		elsif (link_current_state = TIMEOUT) then
 			timeout_ctr <= timeout_ctr + x"1";
@@ -134,7 +134,7 @@ end process TIMEOUT_CTR_PROC;
 DATA_CTR_PROC : process(LL_READ_CLK_IN)
 begin
 	if rising_edge(LL_READ_CLK_IN) then
-		if (reset = '1' or link_current_state = IDLE) then
+		if (link_current_state = IDLE) then
 			data_ctr <= (others => '0');
 		elsif (link_current_state = GENERATE_DATA) then
 			data_ctr <= data_ctr + x"1";
