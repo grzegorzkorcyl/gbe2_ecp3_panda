@@ -210,7 +210,7 @@ port (
 	trb_reset_in : in std_logic;
 	clear_out : out std_logic;
 	reset_out : out std_logic;
-	debug_out : out std_logic
+	debug_out : out std_logic_vector(15 downto 0)
 	);
 end component;
 
