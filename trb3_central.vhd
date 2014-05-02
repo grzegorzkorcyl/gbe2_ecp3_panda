@@ -426,7 +426,7 @@ THE_RESET_HANDLER : trb_net_reset_handler
   
 ll_dummy : local_link_dummy
 generic map(
-	DO_SIMULATION        => 1
+	DO_SIMULATION        => 0
 )
 port map(
 	RESET_N               => reset_clients_n,
