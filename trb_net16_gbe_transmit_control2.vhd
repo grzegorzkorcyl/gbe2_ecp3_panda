@@ -116,7 +116,7 @@ begin
 			if (local_end = x"0000") then
 				transmit_next_state <= SEND_ONE;
 			else
-				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
+				if (actual_frame_bytes = x"0577") then --g_MAX_FRAME_SIZE - x"1") then
 					transmit_next_state <= SEND_ONE;
 				else
 					transmit_next_state <= TRANSMIT;
@@ -182,7 +182,7 @@ begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE or transmit_current_state = DIVIDE) then
 			go_to_divide <= '0';
-		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
+		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = x"0577") then -- g_MAX_FRAME_SIZE - x"1") then
 			go_to_divide <= '1';
 --		elsif (transmit_current_state = SEND_ONE and full_packet_size < packet_loaded_bytes - x"1") then
 --			go_to_divide <= '1';
@@ -220,8 +220,8 @@ process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = PREPARE_HEADERS) then
-			if (local_end >= g_MAX_FRAME_SIZE) then
-				ip_size <= g_MAX_FRAME_SIZE;
+			if (local_end >= x"0578") then --g_MAX_FRAME_SIZE) then
+				ip_size <= x"0578"; --g_MAX_FRAME_SIZE;
 			else
 				ip_size <= local_end + x"1";
 			end if;
@@ -239,7 +239,7 @@ MORE_FRAGMENTS_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = PREPARE_HEADERS) then
-			if (local_end >= g_MAX_FRAME_SIZE) then
+			if (local_end >= x"0578") then --g_MAX_FRAME_SIZE) then
 				more_fragments <= '1';
 			else
 				more_fragments <= '0';
