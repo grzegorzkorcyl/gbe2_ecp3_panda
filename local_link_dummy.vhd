@@ -35,41 +35,42 @@ signal timeout_ctr, timeout_stop_val : std_logic_vector(31 downto 0);
 signal data_stop_val : std_logic_vector(31 downto 0) := x"0000_02b0";
 signal packets_counter : std_logic_vector(31 downto 0) := x"0000_0000";
 attribute keep of packets_counter, data_stop_val : signal is "true";
+signal rand_en : std_logic;
 
 begin
 
 
 imp_gen : if (DO_SIMULATION = 0) generate
-	DATA_STOP_VAL_PROC : process(reset, LL_READ_CLK_IN)
-	begin
-		if (reset = '1') then
-				data_stop_val <= x"0000_0001";
-		elsif rising_edge(LL_READ_CLK_IN) then
-			if (data_stop_val = x"0000_3a00") then
-				data_stop_val <= x"0000_0001";
-			elsif (link_current_state = CLEANUP) then
-				data_stop_val <= data_stop_val + x"1";
-			else
-				data_stop_val <= data_stop_val;
-			end if;
-		end if;
-	end process DATA_STOP_VAL_PROC;
+--	DATA_STOP_VAL_PROC : process(reset, LL_READ_CLK_IN)
+--	begin
+--		if (reset = '1') then
+--				data_stop_val <= x"0000_0001";
+--		elsif rising_edge(LL_READ_CLK_IN) then
+--			if (data_stop_val = x"0000_3a00") then
+--				data_stop_val <= x"0000_0001";
+--			elsif (link_current_state = CLEANUP) then
+--				data_stop_val <= data_stop_val + x"1";
+--			else
+--				data_stop_val <= data_stop_val;
+--			end if;
+--		end if;
+--	end process DATA_STOP_VAL_PROC;
 	timeout_stop_val <= x"0010_0000";
 end generate imp_gen;
 
 sim_gen : if (DO_SIMULATION = 1) generate
-process(LL_READ_CLK_IN)
-begin
-	if rising_edge(LL_READ_CLK_IN) then
-		if (RESET = '1') then
-			data_stop_val <= x"0000_0010";
-		elsif (link_current_state = CLEANUP) then
-			data_stop_val    <= data_stop_val + x"1";
-		else
-			data_stop_val <= data_stop_val;
-		end if;
-	end if;
-end process;
+--process(LL_READ_CLK_IN)
+--begin
+--	if rising_edge(LL_READ_CLK_IN) then
+--		if (RESET = '1') then
+--			data_stop_val <= x"0000_0010";
+--		elsif (link_current_state = CLEANUP) then
+--			data_stop_val    <= data_stop_val + x"1";
+--		else
+--			data_stop_val <= data_stop_val;
+--		end if;
+--	end if;
+--end process;
 	timeout_stop_val <= x"0000_1000";
 end generate sim_gen;
 
@@ -141,6 +142,15 @@ begin
 		end if;
 	end if;
 end process DATA_CTR_PROC;
+
+rand_inst : entity work.random_size
+	port map(Clk  => LL_READ_CLK_IN,
+		     Enb  => rand_en,
+		     Rst  => reset,
+		     Dout => data_stop_val);
+		     
+		     rand_en <= '1' when link_current_state = WAIT_FOR_DST and LL_DST_READY_N_IN = '0'
+		     			else '0';
 
 LL_SOF_N_OUT       <= '0' when (link_current_state = WAIT_FOR_DST and LL_DST_READY_N_IN = '0') else '1'; --(link_current_state = TIMEOUT and timeout_ctr = timeout_stop_val) else '1';
 LL_EOF_N_OUT       <= '0' when (link_current_state = GENERATE_DATA and data_ctr = data_stop_val) else '1';
