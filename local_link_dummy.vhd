@@ -101,7 +101,7 @@ begin
 			end if;
 		
 		when GENERATE_DATA =>
-			if (data_ctr = data_stop_val) then
+			if (data_ctr = data_stop_val(15 downto 0)) then
 				link_next_state <= TIMEOUT;
 			else
 				link_next_state <= GENERATE_DATA;
