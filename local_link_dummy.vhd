@@ -71,7 +71,7 @@ sim_gen : if (DO_SIMULATION = 1) generate
 --		end if;
 --	end if;
 --end process;
-	timeout_stop_val <= x"0000_1000";
+	timeout_stop_val <= x"0000_0010";
 end generate sim_gen;
 
 reset <= not RESET_N;
