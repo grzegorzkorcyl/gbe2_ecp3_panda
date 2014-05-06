@@ -55,7 +55,8 @@ imp_gen : if (DO_SIMULATION = 0) generate
 --			end if;
 --		end if;
 --	end process DATA_STOP_VAL_PROC;
-	timeout_stop_val <= x"0010_0000";
+	--timeout_stop_val <= x"0010_0000";
+	timeout_stop_val <= x"0000_0010";
 end generate imp_gen;
 
 sim_gen : if (DO_SIMULATION = 1) generate
