@@ -261,10 +261,12 @@ end process TC_DATA_SYNC;
 TX_DATA_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			tx_data_ctr <= x"0000";
 		elsif (tx_fifo_wr = '1') then
-			tx_data_ctr(15 downto 2) <= tx_data_ctr(15 downto 2) + x"1";
+			tx_data_ctr <= tx_data_ctr + x"4";
+		else
+			tx_data_ctr <= tx_data_ctr;
 		end if;
 	end if;
 end process TX_DATA_CTR_PROC;
@@ -272,10 +274,12 @@ end process TX_DATA_CTR_PROC;
 TOO_MUCH_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			too_much_data <= '0';
 		elsif (dissect_current_state = SAVE_DATA) and (tx_data_ctr = x"fa00") then
 			too_much_data <= '1';
+		else
+			too_much_data <= too_much_data;
 		end if;
 	end if;
 end process TOO_MUCH_DATA_PROC;
@@ -284,11 +288,13 @@ end process TOO_MUCH_DATA_PROC;
 TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			tx_loaded_ctr <= (others => '0');
 		--elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 		elsif (TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
+		else
+			tx_loaded_ctr <= tx_loaded_ctr;
 		end if;
 	end if;
 end process TX_LOADED_CTR_PROC;
@@ -612,6 +618,8 @@ begin
 			reply_ctr <= (others => '0');
 		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
 			reply_ctr <= reply_ctr + x"1";
+		else
+			reply_ctr <= reply_ctr;
 		end if;
 	end if;
 end process REPLY_CTR_PROC;

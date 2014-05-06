@@ -153,7 +153,7 @@ rand_inst : entity work.random_size
 		     			else '0';
 
 LL_SOF_N_OUT       <= '0' when (link_current_state = WAIT_FOR_DST and LL_DST_READY_N_IN = '0') else '1'; --(link_current_state = TIMEOUT and timeout_ctr = timeout_stop_val) else '1';
-LL_EOF_N_OUT       <= '0' when (link_current_state = GENERATE_DATA and data_ctr = data_stop_val) else '1';
+LL_EOF_N_OUT       <= '0' when (link_current_state = GENERATE_DATA and (data_ctr = "00" & data_stop_val(13 downto 0))) else '1';
 LL_SRC_READY_N_OUT <= '0' when (link_current_state = GENERATE_DATA) or (link_current_state = WAIT_FOR_DST and LL_DST_READY_N_IN = '0') else '1'; -- or (link_current_state = TIMEOUT and timeout_ctr = timeout_stop_val) else '1';
 LL_DATA_OUT        <= data_ctr;
 
